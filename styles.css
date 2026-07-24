@@ -19,6 +19,12 @@ body {
   isolation: isolate;
 }
 
+/* ゴールドのサブタイトルの輪郭（同色の図形に重なっても消えないように）。
+   -webkit-text-stroke は filter ではないので iOS のブレンドを壊さない。 */
+.sub-outline {
+  -webkit-text-stroke: 0.5px var(--red);
+}
+
 /* ===== 背景のざらつきテクスチャー（紙 / リソ風） =====
    SVG のフラクタルノイズを固定背景に重ねる（外部画像不要・自己完結）。
    クリーム地の上、図形やコンテンツの背面（z:-2）に配置。 */
@@ -242,7 +248,7 @@ body::before {
   min-height: 232px; /* 全カードの高さを揃える */
   padding: 1rem;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.8); /* 背景ノイズ上でも読みやすく */
+  background: rgba(255, 255, 255, 1); /* 背景ノイズ上でも読みやすく */
 }
 
 .profile-card__img {
