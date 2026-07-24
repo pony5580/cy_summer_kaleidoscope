@@ -1,0 +1,349 @@
+/* ============================================================
+   SUMMER KALEIDOSCOPE ― custom layer
+   （レイアウトの大半は Tailwind。ここは keyframes / プレースホルダ /
+    アクセシビリティなど Tailwind で書きにくい部分のみ）
+   ============================================================ */
+
+:root {
+  --cream: #f4ebd0;
+  --red: #d62828;
+  --gold: #fcbf49;
+  --ink: #333333;
+}
+
+/* Jost は Futura に近い幾何学サンセリフ。ローカルに Futura があれば優先 */
+body {
+  text-rendering: optimizeLegibility;
+}
+
+/* ===== 背景のざらつきテクスチャー（紙 / リソ風） =====
+   SVG のフラクタルノイズを固定背景に重ねる（外部画像不要・自己完結）。
+   クリーム地の上、図形やコンテンツの背面（z:-2）に配置。 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+}
+
+/* ===== 浮遊する図形（リソグラフ風の重なり） =====
+   ビューポート全体に固定し、コンテンツの背面（z:-1）でゆっくりドリフト。
+   重なった部分は mix-blend-mode: multiply で色が混ざる（重ね刷り風）。 */
+.floaters {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  /* 図形どうしを同じ合成グループにまとめ、重なりで確実に混色させる */
+  isolation: isolate;
+}
+
+.floaters .shape {
+  position: absolute;
+  will-change: transform;
+  /* 各図形（ラッパー単位）を乗算合成 → 図形どうしの重なりで色が混ざる。
+     ※ 内側 div ではなくラッパーに掛けるのがポイント。各図形は transform で
+     個別のスタッキングコンテキストになるため、内側だと混色が図形内で完結してしまう。 */
+  mix-blend-mode: multiply;
+}
+
+@keyframes floatA {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate(16vw, 22vh) scale(1.5) rotate(9deg);
+  }
+  50% {
+    transform: translate(-6vw, 38vh) scale(0.8) rotate(-5deg);
+  }
+  75% {
+    transform: translate(-20vw, 14vh) scale(1.2) rotate(-11deg);
+  }
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+}
+@keyframes floatB {
+  0% {
+    transform: translate(0, 0) scale(1.1) rotate(0deg);
+  }
+  25% {
+    transform: translate(-22vw, -16vh) scale(0.5) rotate(-8deg);
+  }
+  50% {
+    transform: translate(14vw, -30vh) scale(2) rotate(7deg);
+  }
+  75% {
+    transform: translate(24vw, 12vh) scale(1) rotate(12deg);
+  }
+  100% {
+    transform: translate(0, 0) scale(1.1) rotate(0deg);
+  }
+}
+
+.floaters .float-a {
+  animation: floatA 28s ease-in-out infinite;
+}
+.floaters .float-b {
+  animation: floatB 36s ease-in-out infinite;
+}
+.floaters .float-c {
+  animation: floatC 24s ease-in-out infinite;
+}
+.floaters .float-d {
+  animation: floatD 32s ease-in-out infinite;
+}
+
+/* 赤い正方形 */
+@keyframes floatC {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(-18vw, 26vh) scale(1.8) rotate(42deg);
+  }
+  66% {
+    transform: translate(12vw, 44vh) scale(0.8) rotate(-22deg);
+  }
+}
+/* ゴールドの長方形 */
+@keyframes floatD {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(22vw, -20vh) scale(0.85) rotate(-32deg);
+  }
+  66% {
+    transform: translate(-16vw, -6vh) scale(1.3) rotate(26deg);
+  }
+}
+
+/* 赤いリングの線の太さを伸縮（border-box なので外径は一定） */
+.floaters .ring {
+  animation: ringWidth 8s ease-in-out infinite;
+}
+@keyframes ringWidth {
+  0%,
+  100% {
+    border-width: 0.6vmin;
+  }
+  50% {
+    border-width: 5vmin;
+  }
+}
+
+/* ===== 赤い棒状（細長い・長さが伸縮） =====
+   バーはアンカー点を中心に配置（translate -50%,-50%）。2 本を同じアンカーに置き、
+   別々の角度で回すと、その点で X 字に交差する。棒本体（wrapper）が自由にドリフトし、
+   内側の div で長さ（width）を伸縮する。 */
+.floaters .bar > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1.6vmin;
+  border-radius: 999px;
+  background: var(--red);
+  transform: translate(-50%, -50%); /* アンカー点を中心に */
+  transform-origin: center;
+}
+/* 0%/100% は左上（translate 0,0）で 2 本が重なり、途中は画面全体を自由にドリフト。
+   内側の div で長さ（width）を伸縮。 */
+.floaters .bar-a {
+  animation: barDriftA 31s ease-in-out infinite;
+}
+.floaters .bar-a > div {
+  animation: barLenA 15s ease-in-out infinite;
+}
+.floaters .bar-b {
+  animation: barDriftB 19s ease-in-out infinite;
+}
+.floaters .bar-b > div {
+  animation: barLenB 42s ease-in-out infinite;
+}
+
+@keyframes barDriftA {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(28deg);
+  }
+  25% {
+    transform: translate(42vw, 30vh) rotate(78deg);
+  }
+  50% {
+    transform: translate(62vw, 62vh) rotate(-24deg);
+  }
+  75% {
+    transform: translate(16vw, 48vh) rotate(134deg);
+  }
+}
+@keyframes barDriftB {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(116deg);
+  }
+  25% {
+    transform: translate(58vw, 8vh) rotate(-38deg);
+  }
+  50% {
+    transform: translate(26vw, 56vh) rotate(64deg);
+  }
+  75% {
+    transform: translate(68vw, 30vh) rotate(6deg);
+  }
+}
+@keyframes barLenA {
+  0%,
+  100% {
+    width: 12vmin;
+  }
+  50% {
+    width: 86vmin;
+  }
+}
+@keyframes barLenB {
+  0%,
+  100% {
+    width: 80vmin;
+  }
+  50% {
+    width: 16vmin;
+  }
+}
+
+/* ===== Artists / Profile：全カード同じ大きさ・縦積み ===== */
+.profile-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.profile-card {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 1.75rem;
+  align-items: center;
+  min-height: 232px; /* 全カードの高さを揃える */
+  padding: 1rem;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.8); /* 背景ノイズ上でも読みやすく */
+}
+
+.profile-card__img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 2px;
+  background: var(--cream);
+  object-position: top;
+}
+
+/* プロフィール未登録用のプレースホルダ画像 */
+.profile-card__img--placeholder {
+  bgcolor: var(--cream);
+}
+
+.profile-card__name {
+  font-family: "Jost", "Futura", sans-serif;
+  font-weight: 700;
+  color: var(--red);
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.profile-card__role {
+  font-family: "Jost", "Futura", sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.6;
+  margin: 0.25rem 0 0;
+}
+
+.profile-card__bio {
+  margin: 0.85rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.85;
+  color: var(--ink);
+}
+
+.profile-card__links {
+  margin: 1rem 0 0;
+  display: flex;
+  gap: 1.25rem;
+  font-family: "Jost", "Futura", sans-serif;
+  font-size: 0.85rem;
+}
+
+.profile-card__links a {
+  color: var(--red);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+}
+
+.profile-card__links a:hover {
+  opacity: 0.7;
+}
+
+/* スマホ：画像を上に積む */
+@media (max-width: 640px) {
+  .profile-card {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+  .profile-card__img {
+    width: 100%;
+    height: 320px;
+  }
+}
+
+/* ===== スクロールで出現（reveal） ===== */
+html.js .reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+html.js .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ===== モーション控えめ設定を尊重 ===== */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .floaters .shape,
+  .floaters .bar > div,
+  .floaters .ring {
+    animation: none !important;
+  }
+  .animate-bounce {
+    animation: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}

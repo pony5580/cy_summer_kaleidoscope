@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      SUMMER KALEIDOSCOPE ― サマー カレイドスコープ | Group Exhibition at Cy
+      Kamakura
+    </title>
+    <meta
+      name="description"
+      content="グループ展「SUMMER KALEIDOSCOPE」2026.8.8–23、鎌倉 Cy Kamakura（Art Gallery & Restaurant）にて開催。Spiralarts & Azusa / MOJO / Abumi / KUKU. / cpnnn_"
+    />
+
+    <!-- OGP -->
+    <meta
+      property="og:title"
+      content="SUMMER KALEIDOSCOPE ― サマー カレイドスコープ"
+    />
+    <meta
+      property="og:description"
+      content="Group Exhibition / 2026.8.8–23 at Cy Kamakura"
+    />
+    <meta property="og:type" content="website" />
+    <!-- 公開URL確定後は絶対URL（https://…/flyer.png）に変更推奨 -->
+    <meta property="og:image" content="flyer.png" />
+
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Jost = Futura に最も近い無料フォント（幾何学サンセリフ） -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,500;0,600;0,700;0,800;0,900;1,600;1,800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind (Play CDN)。本番用にビルドする方法は README を参照 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              cream: "#F4EBD0",
+              red: "#D62828",
+              gold: "#FCBF49",
+              ink: "#333333",
+            },
+            fontFamily: {
+              display: ["Jost", "Futura", "sans-serif"],
+              jp: ['"Zen Kaku Gothic New"', "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- JS が有効なときだけ reveal を隠す（無効時も内容が見えるようにする） -->
+    <script>
+      document.documentElement.classList.add("js");
+    </script>
+  </head>
+
+  <body class="bg-cream text-ink font-jp antialiased overflow-x-hidden">
+    <!-- ===== 画面全体を浮遊する図形（リソグラフ風の重なり） ===== -->
+    <div class="floaters" aria-hidden="true">
+      <!-- ゴールドの円 -->
+      <div class="shape float-a" style="top: 2vh; right: 8vw">
+        <div class="w-[62vmin] h-[62vmin] rounded-full bg-gold"></div>
+      </div>
+      <!-- 赤いリング（線の太さが伸縮） -->
+      <div class="shape float-b" style="top: 34vh; left: 4vw">
+        <div
+          class="w-[72vmin] h-[72vmin] rounded-full border-[3vmin] border-red"
+        ></div>
+      </div>
+      <!-- 赤い棒（細長い・長さが伸縮）／左上の一点でX字に交差してスタート -->
+      <div class="shape bar bar-a" style="top: 15vh; left: 15vw">
+        <div></div>
+      </div>
+      <div class="shape bar bar-b" style="top: 15vh; left: 15vw">
+        <div></div>
+      </div>
+      <!-- 赤い正方形 -->
+      <div class="shape float-c" style="bottom: 32vh; right: 2vw">
+        <div class="w-[30vmin] h-[30vmin] bg-red rotate-[24deg]"></div>
+      </div>
+      <!-- ゴールドの長方形 -->
+      <div class="shape float-d" style="bottom: 3vh; left: -10vw">
+        <div class="w-[70vmin] h-[34vmin] bg-gold -rotate-[18deg]"></div>
+      </div>
+    </div>
+
+    <!-- ===== HERO ===== -->
+    <section
+      id="top"
+      class="hero relative min-h-screen w-full overflow-hidden flex items-center"
+    >
+      <!-- タイトル（背面の浮遊図形と重なった所で色が混ざるよう、z-index は付けない：
+           z-30 でスタッキングコンテキストを作ると図形が合成対象から外れてしまう） -->
+      <div class="hero-copy relative px-6 md:px-14 w-full">
+        <p
+          class="font-display font-extrabold italic uppercase tracking-[0.22em] text-red text-xs mb-3"
+        >
+          Group&nbsp;Exhibition
+        </p>
+        <!-- 図形と同じく乗算合成。重なった図形の色と混ざる（赤を保ちつつ暗く混色） -->
+        <h1 class="font-display text-red leading-[0.82] mix-blend-multiply">
+          <span class="block tracking-tight text-[clamp(1rem,16vw,3rem)]"
+            >SUMMER</span
+          >
+          <span
+            class="block tracking-[6.4px] text-[clamp(0.5rem,7vw,1rem)] mt-1"
+            >KALEIDOSCOPE</span
+          >
+        </h1>
+        <p
+          class="font-jp font-medium text-gold tracking-[0.3em] text-[clamp(1rem,3.5vw,2rem)] mt-4 drop-shadow-sm mix-blend-multiply"
+        >
+          サマー カレイドスコープ
+        </p>
+
+        <ul
+          class="hero-artists flex flex-wrap gap-x-6 gap-y-1 mt-8 font-display font-bold text-ink/90 text-[clamp(0.95rem,2.2vw,1.4rem)] mix-blend-multiply"
+        >
+          <li>Spiralarts</li>
+          <li>Azusa</li>
+          <li>MOJO</li>
+          <li>Abumi</li>
+          <li>KUKU.</li>
+          <li>cpnnn_</li>
+        </ul>
+
+        <p
+          class="mt-8 font-display font-bold tracking-wide text-ink text-[clamp(1rem,2.6vw,1.5rem)] mix-blend-multiply"
+        >
+          2026.8.8 <span class="text-red">SAT</span> — 8.23
+          <span class="text-red">SUN</span>
+        </p>
+
+        <p
+          class="mt-1 tracking-wide text-ink text-[clamp(0.7rem,2.6vw,1.2rem)] mix-blend-multiply"
+        >
+          Cy Kamakura
+        </p>
+      </div>
+    </section>
+
+    <!-- ===== ARTISTS / PROFILE ===== -->
+    <section
+      id="artists"
+      class="reveal border-t border-ink/15 px-6 md:px-14 py-24 md:py-36"
+    >
+      <div class="max-w-4xl mx-auto">
+        <!-- 全カード同じ大きさ・縦積み -->
+        <ul class="profile-list">
+          <li class="profile-card">
+            <img
+              class="profile-card__img"
+              src="profile/spiralarts/img.avif"
+              alt="Spiralarts の作品"
+              loading="lazy"
+            />
+            <div class="profile-card__body">
+              <h3 class="profile-card__name">Spiralarts</h3>
+              <p class="profile-card__role">Glass Art</p>
+              <p class="profile-card__bio">
+                SPIRALARTS 主宰・高橋祥行は 1999
+                年に渡米し、ボロシリケイトガラスの
+                第一人者ボブ・スノッドグラスに師事。「ガラスと精神性の融合」をテーマに、
+                国内外のアートイベントや照明演出で表現を広げる。代表作「コスモランプ」は
+                ブルーノート東京やウェスティンホテル東京にも導入。現在は鎌倉と富山の
+                二拠点で活動。
+              </p>
+              <p class="profile-card__links">
+                <a
+                  href="https://www.spiral-arts.jp"
+                  target="_blank"
+                  rel="noopener"
+                  >Web</a
+                >
+                <a
+                  href="https://www.instagram.com/giyaman_spiralarts/"
+                  target="_blank"
+                  rel="noopener"
+                  >Instagram</a
+                >
+              </p>
+            </div>
+          </li>
+
+          <li class="profile-card">
+            <img
+              class="profile-card__img"
+              src="profile/azusa/img.jpg"
+              alt="亜沙（Azusa）の作品"
+              loading="lazy"
+            />
+            <div class="profile-card__body">
+              <h3 class="profile-card__name">Azusa ／ 亜沙</h3>
+              <p class="profile-card__role">Ikebana</p>
+              <p class="profile-card__bio">
+                いけばな作家。茶道・華道家の祖母のもと、幼少期より華道（池坊）を始める。
+                一度離れたのち 3
+                年前から再開。陶芸家との合同展示やワークショップなどを 行う。
+              </p>
+              <p class="profile-card__links">
+                <a
+                  href="https://www.instagram.com/azu_mcw/"
+                  target="_blank"
+                  rel="noopener"
+                  >Instagram</a
+                >
+              </p>
+            </div>
+          </li>
+
+          <li class="profile-card">
+            <img
+              class="profile-card__img"
+              src="profile/mojo/img.jpg"
+              alt="MOJO の作品"
+              loading="lazy"
+            />
+            <div class="profile-card__body">
+              <h3 class="profile-card__name">MOJO</h3>
+              <p class="profile-card__role">Painter ／ Figure Design</p>
+              <p class="profile-card__bio">
+                新潟県出身。画家・絵本作家・フィギュアデザイナー。幼少期から漫画・
+                アメリカンコミック・映画などのポップカルチャーに影響を受け、オリジナル
+                キャラクターを生み出す。絵本、絵画、ソフビなど幅広い表現でキャラクター
+                カルチャーの新たな可能性を追求している。
+              </p>
+              <p class="profile-card__links">
+                <a
+                  href="https://www.instagram.com/morikennn18/"
+                  target="_blank"
+                  rel="noopener"
+                  >Instagram</a
+                >
+              </p>
+            </div>
+          </li>
+
+          <li class="profile-card">
+            <img
+              class="profile-card__img"
+              src="profile/kuku/img.png"
+              alt="KUKU. の作品"
+              loading="lazy"
+            />
+            <div class="profile-card__body">
+              <h3 class="profile-card__name">KUKU.</h3>
+              <p class="profile-card__role">Contemporary Art</p>
+              <p class="profile-card__bio">
+                浮世絵や日本伝統刺青をモチーフに、日本の伝統美を現代の感性で再解釈した
+                作品を制作。抽象表現を取り入れながら、自身の表現を探求している。
+              </p>
+              <p class="profile-card__links">
+                <a
+                  href="https://www.instagram.com/halnaks/"
+                  target="_blank"
+                  rel="noopener"
+                  >Instagram</a
+                >
+              </p>
+            </div>
+          </li>
+
+          <!-- プロフィール未登録（profile/abumi・profile/cpnnn を追加したら差し替え） -->
+          <li class="profile-card">
+            <div
+              class="profile-card__img profile-card__img--placeholder"
+              aria-hidden="true"
+            ></div>
+            <div class="profile-card__body">
+              <h3 class="profile-card__name">Abumi</h3>
+              <p class="profile-card__role">Artist</p>
+              <p class="profile-card__bio">プロフィールは近日公開。</p>
+            </div>
+          </li>
+
+          <li class="profile-card">
+            <div
+              class="profile-card__img profile-card__img--placeholder"
+              aria-hidden="true"
+            ></div>
+            <div class="profile-card__body">
+              <h3 class="profile-card__name">cpnnn_</h3>
+              <p class="profile-card__role">Artist</p>
+              <p class="profile-card__bio">プロフィールは近日公開。</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== FOOTER（ギャラリーの地図のみ） ===== -->
+    <footer class="border-t border-ink/15">
+      <iframe
+        title="Cy Kamakura の地図"
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3255.603576055137!2d139.5438300757716!3d35.31583047270733!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x601845f5749e530f%3A0x2b7ac4459fc1b6cb!2zQ1kg44K144Kk!5e0!3m2!1sja!2sjp!4v1784904042726!5m2!1sja!2sjp"
+        class="w-full h-[55vh] md:h-[450px] block"
+        style="border: 0"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="strict-origin-when-cross-origin"
+      ></iframe>
+      <p class="bg-ink text-cream/40 text-xs text-center py-4">
+        © 2026 Cy Kamakura / PONY
+      </p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
