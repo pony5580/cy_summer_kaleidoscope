@@ -14,6 +14,9 @@
 /* Jost は Futura に近い幾何学サンセリフ。ローカルに Futura があれば優先 */
 body {
   text-rendering: optimizeLegibility;
+  /* iOS Safari で前面テキストと背面図形のブレンドを成立させるため、
+     共通の親（body）を独立した合成グループにする */
+  isolation: isolate;
 }
 
 /* ===== 背景のざらつきテクスチャー（紙 / リソ風） =====
@@ -46,10 +49,11 @@ body::before {
 
 .floaters .shape {
   position: absolute;
-  will-change: transform;
   /* 各図形（ラッパー単位）を乗算合成 → 図形どうしの重なりで色が混ざる。
      ※ 内側 div ではなくラッパーに掛けるのがポイント。各図形は transform で
-     個別のスタッキングコンテキストになるため、内側だと混色が図形内で完結してしまう。 */
+     個別のスタッキングコンテキストになるため、内側だと混色が図形内で完結してしまう。
+     ※ will-change: transform は付けない（iOS Safari で恒久レイヤー化すると
+        前面テキストとのブレンドが効かなくなるため）。 */
   mix-blend-mode: multiply;
 }
 
