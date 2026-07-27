@@ -58,12 +58,12 @@ body::after {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='680' height='680'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.011' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E"),
     /* ごく淡い紙の繊維（斜めのヘアライン） */
     repeating-linear-gradient(
-      118deg,
-      rgba(51, 34, 17, 0.04) 0px,
-      rgba(51, 34, 17, 0.04) 1px,
-      transparent 1px,
-      transparent 4px
-    );
+        118deg,
+        rgba(51, 34, 17, 0.04) 0px,
+        rgba(51, 34, 17, 0.04) 1px,
+        transparent 1px,
+        transparent 4px
+      );
   background-size:
     680px 680px,
     auto;
@@ -377,4 +377,9 @@ html.lenis body {
 }
 .lenis.lenis-stopped {
   overflow: hidden;
+}
+
+iframe {
+  filter: saturate(20%) contrast(100%);
+  border: 0;
 }
