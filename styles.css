@@ -46,7 +46,11 @@ body::before {
 
 /* ===== 紙のムラ（低周波の柔らかい濃淡）＋繊維感 =====
    細かいグレイン（::before）に、大きくゆるやかな濃淡ムラを薄く重ねて
-   「刷り物の紙」らしい質感を さりげなく 足す。図形/文字の背面（z:-2）。 */
+   「刷り物の紙」らしい質感を さりげなく 足す。図形/文字の背面（z:-2）。
+
+   ムラ層はタイル反復させず、ビューポート全体に 1 枚で敷く（no-repeat + cover）。
+   これで大画面でもタイルの繋ぎ目・反復が出ない（fixed なのでスクロールでも安定）。
+   ソフトな濃淡なので拡大で眠くなっても気にならない。繊維のヘアラインのみ反復。 */
 body::after {
   content: "";
   position: fixed;
@@ -54,9 +58,9 @@ body::after {
   z-index: -2;
   pointer-events: none;
   background-image:
-    /* 大きな柔らかいムラ（雲状の濃淡） */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='680' height='680'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.011' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E"),
-    /* ごく淡い紙の繊維（斜めのヘアライン） */
+    /* 大きな柔らかいムラ（雲状の濃淡）：1 枚で全面に伸ばす → 繋ぎ目なし */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='1200'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.009' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E"),
+    /* ごく淡い紙の繊維（斜めのヘアライン）：これは細かいので反復してよい */
     repeating-linear-gradient(
         118deg,
         rgba(51, 34, 17, 0.04) 0px,
@@ -64,8 +68,12 @@ body::after {
         transparent 1px,
         transparent 4px
       );
+  background-repeat: no-repeat, repeat;
+  background-position:
+    center center,
+    top left;
   background-size:
-    680px 680px,
+    cover,
     auto;
   opacity: 0.32;
   mix-blend-mode: multiply;
