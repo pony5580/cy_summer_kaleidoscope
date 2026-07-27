@@ -21,6 +21,17 @@ body {
   /* iOS Safari で前面テキストと背面図形のブレンドを成立させるため、
      共通の親（body）を独立した合成グループにする */
   isolation: isolate;
+
+  /* ===== 背景グレイン（紙のザラつき・iOS 安全版） =====
+     以前は別レイヤー（fixed＋負z＋mix-blend-mode）で敷いていたが iOS で不具合の
+     温床だったため、ノイズを body の背景画像として直接敷き、背景色クリームと
+     background-blend-mode: multiply で混ぜる。これは「要素内」のブレンドなので
+     合成レイヤーに依存せず iOS でも安全。ノイズは薄い明灰色（0.6〜1.0）にして
+     乗算を控えめにし、さりげないザラつきにしている。 */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.4' intercept='0.6'/%3E%3CfeFuncG type='linear' slope='0.4' intercept='0.6'/%3E%3CfeFuncB type='linear' slope='0.4' intercept='0.6'/%3E%3CfeFuncA type='linear' slope='0' intercept='1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  background-repeat: repeat;
+  background-blend-mode: multiply;
 }
 
 /* ゴールドのサブタイトルの輪郭（同色の図形に重なっても消えないように）。
@@ -29,8 +40,7 @@ body {
   -webkit-text-stroke: 0.5px var(--red);
 }
 
-/* 背景テクスチャーは一旦すべて撤去（iOS で図形が隠れる問題の切り分けのため）。
-   背景はベタのクリーム 1 色（body の bg-cream）のみ。 */
+/* 背景グレインは body の背景に直接敷いている（上の body ルールを参照）。 */
 
 /* ============================================================
    浮遊する図形（リソグラフ風の重なり／カレイドスコープ）
