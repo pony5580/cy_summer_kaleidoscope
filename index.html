@@ -54,42 +54,17 @@
         },
       };
     </script>
-    <link rel="stylesheet" href="styles.css?1" />
-    <!-- JS が有効なときだけ reveal を隠す（無効時も内容が見えるようにする） -->
+    <link rel="stylesheet" href="styles.css?v=10" />
+    <!-- JS が有効なときだけ reveal/entrance を隠す（無効時も内容が見えるように） -->
     <script>
       document.documentElement.classList.add("js");
     </script>
   </head>
 
   <body class="bg-cream text-ink font-jp antialiased overflow-x-hidden">
-    <!-- ===== 画面全体を浮遊する図形（リソグラフ風の重なり） ===== -->
-    <div class="floaters" aria-hidden="true">
-      <!-- ゴールドの円 -->
-      <div class="shape float-a" style="top: 2vh; right: 8vw">
-        <div class="w-[62vmin] h-[62vmin] rounded-full bg-gold"></div>
-      </div>
-      <!-- 赤いリング（線の太さが伸縮） -->
-      <div class="shape float-b" style="top: 34vh; left: 4vw">
-        <div
-          class="w-[72vmin] h-[72vmin] rounded-full border-[3vmin] border-red"
-        ></div>
-      </div>
-      <!-- 赤い棒（細長い・長さが伸縮）／左上の一点でX字に交差してスタート -->
-      <div class="shape bar bar-a" style="top: 15vh; left: 15vw">
-        <div></div>
-      </div>
-      <div class="shape bar bar-b" style="top: 15vh; left: 15vw">
-        <div></div>
-      </div>
-      <!-- 赤い正方形 -->
-      <div class="shape float-c" style="bottom: 32vh; right: 2vw">
-        <div class="w-[30vmin] h-[30vmin] bg-red rotate-[24deg]"></div>
-      </div>
-      <!-- ゴールドの長方形 -->
-      <div class="shape float-d" style="bottom: 3vh; left: -10vw">
-        <div class="w-[70vmin] h-[34vmin] bg-gold -rotate-[18deg]"></div>
-      </div>
-    </div>
+    <!-- ===== 画面全体を浮遊する図形（リソグラフ風の重なり／カレイドスコープ）
+         中身は app.js が config から生成する。JS 無効時は静かなクリーム地。 ===== -->
+    <div class="floaters" aria-hidden="true"></div>
 
     <!-- ===== HERO ===== -->
     <section
@@ -100,24 +75,25 @@
            z-30 でスタッキングコンテキストを作ると図形が合成対象から外れてしまう） -->
       <div class="hero-copy relative px-6 md:px-14 w-full">
         <p
-          class="font-display font-extrabold italic uppercase tracking-[0.22em] text-red text-xs mb-3"
+          class="hero-line font-display font-extrabold italic uppercase tracking-[0.22em] text-red text-xs mb-3"
         >
           Group&nbsp;Exhibition
         </p>
         <!-- 図形と同じく乗算合成。重なった図形の色と混ざる（赤を保ちつつ暗く混色） -->
         <h1 class="font-display text-red leading-[0.82] mix-blend-multiply">
-          <span class="block tracking-tight text-[clamp(3rem,16vw,4rem)]"
+          <span
+            class="hero-line block tracking-tight text-[clamp(3rem,16vw,4rem)]"
             >SUMMER</span
           >
           <span
-            class="block tracking-[10.5px] text-[clamp(0.5rem,7vw,1rem)] mt-1"
+            class="hero-line block tracking-[10.5px] text-[clamp(0.5rem,7vw,1rem)] mt-1"
             >KALEIDOSCOPE</span
           >
         </h1>
         <!-- ゴールド文字は同色の図形に重なると同化しやすい。iOS ではアニメ図形が
              合成レイヤー化してブレンドが効かないため、細い輪郭で可読性を担保する。 -->
         <p
-          class="sub-outline font-jp font-medium text-gold tracking-[0.3em] text-[clamp(1rem,3.5vw,2rem)] mt-4 mix-blend-multiply"
+          class="hero-line sub-outline font-jp font-medium text-gold tracking-[0.3em] text-[clamp(1rem,3.5vw,2rem)] mt-4 mix-blend-multiply"
         >
           サマー カレイドスコープ
         </p>
@@ -134,29 +110,35 @@
         </ul>
 
         <p
-          class="mt-8 font-display font-bold tracking-wide text-ink text-[clamp(1rem,2.6vw,1.5rem)] mix-blend-multiply"
+          class="hero-line mt-8 font-display font-bold tracking-wide text-ink text-[clamp(1rem,2.6vw,1.5rem)] mix-blend-multiply"
         >
           2026.8.8 <span class="text-red">SAT</span> — 8.23
           <span class="text-red">SUN</span>
         </p>
 
         <p
-          class="mt-1 tracking-wide text-ink text-[clamp(0.7rem,2.6vw,1.2rem)] mix-blend-multiply"
+          class="hero-line mt-1 tracking-wide text-ink text-[clamp(0.7rem,2.6vw,1.2rem)] mix-blend-multiply"
         >
           Cy Kamakura
         </p>
       </div>
+
+      <!-- スクロール誘導 -->
+      <!-- <div class="scroll-cue" aria-hidden="true">
+        <span class="scroll-cue__label font-display">Scroll</span>
+        <span class="scroll-cue__line"></span>
+      </div> -->
     </section>
 
     <!-- ===== ARTISTS / PROFILE ===== -->
     <section
       id="artists"
-      class="reveal border-t border-ink/15 px-6 md:px-14 py-24 md:py-36"
+      class="border-t border-ink/15 px-6 md:px-14 py-24 md:py-36"
     >
       <div class="max-w-4xl mx-auto">
         <!-- 全カード同じ大きさ・縦積み -->
         <ul class="profile-list">
-          <li class="profile-card">
+          <li class="profile-card reveal">
             <img
               class="profile-card__img"
               src="profile/spiralarts/img.avif"
@@ -191,7 +173,7 @@
             </div>
           </li>
 
-          <li class="profile-card">
+          <li class="profile-card reveal">
             <img
               class="profile-card__img"
               src="profile/azusa/img.jpg"
@@ -217,7 +199,7 @@
             </div>
           </li>
 
-          <li class="profile-card">
+          <li class="profile-card reveal">
             <img
               class="profile-card__img"
               src="profile/mojo/img.jpg"
@@ -244,7 +226,7 @@
             </div>
           </li>
 
-          <li class="profile-card">
+          <li class="profile-card reveal">
             <img
               class="profile-card__img"
               src="profile/kuku/img.png"
@@ -270,7 +252,7 @@
           </li>
 
           <!-- プロフィール未登録（profile/abumi・profile/cpnnn を追加したら差し替え） -->
-          <li class="profile-card">
+          <li class="profile-card reveal">
             <div
               class="profile-card__img profile-card__img--placeholder"
               aria-hidden="true"
@@ -282,15 +264,32 @@
             </div>
           </li>
 
-          <li class="profile-card">
-            <div
-              class="profile-card__img profile-card__img--placeholder"
-              aria-hidden="true"
-            ></div>
+          <li class="profile-card reveal">
+            <img
+              class="profile-card__img"
+              src="profile/cpnnn/img.png"
+              alt="cpnnn イメージ"
+              loading="lazy"
+            />
             <div class="profile-card__body">
-              <h3 class="profile-card__name">cpnnn_</h3>
-              <p class="profile-card__role">Artist</p>
-              <p class="profile-card__bio">プロフィールは近日公開。</p>
+              <h3 class="profile-card__name">
+                <ruby> cpnnn<rt>かぷぬ</rt> </ruby>
+              </h3>
+              <p class="profile-card__role">3D DESIGN / ART DIRECTION</p>
+              <p class="profile-card__bio">
+                茅ヶ崎在住。国内外のアーティストのビジュアルを手がけるアートディレクター/3Dデザイナーとして、レコードやCD、アルバムアートワークのデザインからVR/ARコンテンツ、ライブやMVのビジュアライザー制作まで幅広く活動している。
+              </p>
+              <p class="profile-card__links">
+                <a href="https://cpnnn.xyz/work" target="_blank" rel="noopener"
+                  >Web</a
+                >
+                <a
+                  href="https://www.instagram.com/cpnnn_/"
+                  target="_blank"
+                  rel="noopener"
+                  >Instagram</a
+                >
+              </p>
             </div>
           </li>
         </ul>
@@ -298,21 +297,27 @@
     </section>
 
     <!-- ===== FOOTER（ギャラリーの地図のみ） ===== -->
-    <footer class="border-t border-ink/15">
-      <iframe
-        title="Cy Kamakura の地図"
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3255.603576055137!2d139.5438300757716!3d35.31583047270733!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x601845f5749e530f%3A0x2b7ac4459fc1b6cb!2zQ1kg44K144Kk!5e0!3m2!1sja!2sjp!4v1784904042726!5m2!1sja!2sjp"
-        class="w-full h-[55vh] md:h-[450px] block"
-        style="border: 0"
-        allowfullscreen=""
-        loading="lazy"
-        referrerpolicy="strict-origin-when-cross-origin"
-      ></iframe>
-      <p class="bg-gold text-red text-xs text-center py-4">
+    <footer>
+      <div class="px-6 pt-6 pb-4 bg-gold">
+        <iframe
+          title="Cy Kamakura の地図"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3255.603576055137!2d139.5438300757716!3d35.31583047270733!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x601845f5749e530f%3A0x2b7ac4459fc1b6cb!2zQ1kg44K144Kk!5e0!3m2!1sja!2sjp!4v1784904042726!5m2!1sja!2sjp"
+          class="w-full h-[55vh] md:h-[450px] block"
+          style="border: 0"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+        ></iframe>
+      </div>
+      <p class="bg-gold text-red text-xs text-center pb-4">
         © 2026 Cy Kamakura / PONY
       </p>
     </footer>
 
-    <script src="app.js"></script>
+    <!-- ===== Animation libraries (CLAUDE.md: GSAP + ScrollTrigger + Lenis) ===== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+    <script src="app.js?v=10"></script>
   </body>
 </html>

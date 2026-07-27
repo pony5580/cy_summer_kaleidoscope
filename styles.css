@@ -1,7 +1,11 @@
 /* ============================================================
    SUMMER KALEIDOSCOPE ― custom layer
-   （レイアウトの大半は Tailwind。ここは keyframes / プレースホルダ /
-    アクセシビリティなど Tailwind で書きにくい部分のみ）
+   レイアウトの大半は Tailwind。ここは keyframes / 図形の見た目 /
+   プレースホルダ / アクセシビリティなど Tailwind で書きにくい部分のみ。
+
+   モーションは GSAP + ScrollTrigger + Lenis（app.js）が駆動する。
+   このファイルは「図形の見た目」と「登場前の初期状態」を定義するだけで、
+   動き（transform / opacity）は基本的に JS 側で与える。
    ============================================================ */
 
 :root {
@@ -40,9 +44,20 @@ body::before {
   mix-blend-mode: multiply;
 }
 
-/* ===== 浮遊する図形（リソグラフ風の重なり） =====
-   ビューポート全体に固定し、コンテンツの背面（z:-1）でゆっくりドリフト。
-   重なった部分は mix-blend-mode: multiply で色が混ざる（重ね刷り風）。 */
+/* ============================================================
+   浮遊する図形（リソグラフ風の重なり／カレイドスコープ）
+   ------------------------------------------------------------
+   ビューポート全体に固定し、コンテンツ背面（z:-1）でドリフト。
+   重なった部分は mix-blend-mode: multiply で色が混ざる（重ね刷り風）。
+
+   DOM 構造（app.js が生成）：
+     .floaters
+       .floater            ← マウス視差（pointer parallax）
+         .floater__scroll  ← スクロール視差（depth parallax）
+         　.floater__drift  ← 常時ドリフト（idle：x/y/rotate/scale）
+             .floater__shape ← 図形本体（+ bar/ring のモーフ）
+   各レイヤーが transform を 1 つずつ担当し、互いに衝突しない。
+   ============================================================ */
 .floaters {
   position: fixed;
   inset: 0;
@@ -53,181 +68,158 @@ body::before {
   isolation: isolate;
 }
 
-.floaters .shape {
+/* 各図形（最外ラッパー単位）を乗算合成 → 図形どうしの重なりで色が混ざる。
+   ※ 内側 div ではなくラッパーに掛けるのがポイント。各内側は transform で
+      個別スタッキングコンテキストになるため、内側だと混色が図形内で完結する。
+   ※ will-change / force3D による恒久レイヤー化はしない（iOS Safari で前面
+      テキストとのブレンドが効かなくなるため）。app.js 側で force3D:false。 */
+.floater {
+  /* 位置は JS が inline（top/left/bottom/right のいずれか）で与える。
+     ここで top/left の既定値を置くと inline の bottom/right と競合するので置かない。 */
   position: absolute;
-  /* 各図形（ラッパー単位）を乗算合成 → 図形どうしの重なりで色が混ざる。
-     ※ 内側 div ではなくラッパーに掛けるのがポイント。各図形は transform で
-     個別のスタッキングコンテキストになるため、内側だと混色が図形内で完結してしまう。
-     ※ will-change: transform は付けない（iOS Safari で恒久レイヤー化すると
-        前面テキストとのブレンドが効かなくなるため）。 */
   mix-blend-mode: multiply;
 }
 
-@keyframes floatA {
-  0% {
-    transform: translate(0, 0) scale(1) rotate(0deg);
-  }
-  25% {
-    transform: translate(16vw, 22vh) scale(1.5) rotate(9deg);
-  }
-  50% {
-    transform: translate(-6vw, 38vh) scale(0.8) rotate(-5deg);
-  }
-  75% {
-    transform: translate(-20vw, 14vh) scale(1.2) rotate(-11deg);
-  }
-  100% {
-    transform: translate(0, 0) scale(1) rotate(0deg);
-  }
-}
-@keyframes floatB {
-  0% {
-    transform: translate(0, 0) scale(1.1) rotate(0deg);
-  }
-  25% {
-    transform: translate(-22vw, -16vh) scale(0.5) rotate(-8deg);
-  }
-  50% {
-    transform: translate(14vw, -30vh) scale(2) rotate(7deg);
-  }
-  75% {
-    transform: translate(24vw, 12vh) scale(1) rotate(12deg);
-  }
-  100% {
-    transform: translate(0, 0) scale(1.1) rotate(0deg);
-  }
-}
-
-.floaters .float-a {
-  animation: floatA 28s ease-in-out infinite;
-}
-.floaters .float-b {
-  animation: floatB 36s ease-in-out infinite;
-}
-.floaters .float-c {
-  animation: floatC 24s ease-in-out infinite;
-}
-.floaters .float-d {
-  animation: floatD 32s ease-in-out infinite;
-}
-
-/* 赤い正方形 */
-@keyframes floatC {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1) rotate(0deg);
-  }
-  33% {
-    transform: translate(-18vw, 26vh) scale(1.8) rotate(42deg);
-  }
-  66% {
-    transform: translate(12vw, 44vh) scale(0.8) rotate(-22deg);
-  }
-}
-/* ゴールドの長方形 */
-@keyframes floatD {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1) rotate(0deg);
-  }
-  33% {
-    transform: translate(22vw, -20vh) scale(0.85) rotate(-32deg);
-  }
-  66% {
-    transform: translate(-16vw, -6vh) scale(1.3) rotate(26deg);
-  }
-}
-
-/* 赤いリングの線の太さを伸縮（border-box なので外径は一定） */
-.floaters .ring {
-  animation: ringWidth 8s ease-in-out infinite;
-}
-@keyframes ringWidth {
-  0%,
-  100% {
-    border-width: 0.6vmin;
-  }
-  50% {
-    border-width: 5vmin;
-  }
-}
-
-/* ===== 赤い棒状（細長い・長さが伸縮） =====
-   バーはアンカー点を中心に配置（translate -50%,-50%）。2 本を同じアンカーに置き、
-   別々の角度で回すと、その点で X 字に交差する。棒本体（wrapper）が自由にドリフトし、
-   内側の div で長さ（width）を伸縮する。 */
-.floaters .bar > div {
+/* ローター：全図形を内包し、ビューポート中心（origin 50% 50%）で回る。
+   これを回すと図形群が中心軸のまわりを公転＝万華鏡の筒をひねった旋回になる。
+   will-change は付けない（iOS Safari の乗算ブレンド維持のため）。 */
+.floaters__rotor {
   position: absolute;
-  top: 0;
-  left: 0;
-  height: 1.6vmin;
-  border-radius: 999px;
-  background: var(--red);
-  transform: translate(-50%, -50%); /* アンカー点を中心に */
+  inset: 0;
+  transform-origin: 50% 50%;
+}
+
+/* 中間レイヤー：レイアウトを持たず transform だけを担う */
+.floater__scroll,
+.floater__drift {
+  display: block;
+}
+
+/* ---- 図形本体 ---- */
+.floater__shape {
+  /* JS が個別に位置（left/top）と大きさ（--size 等）を与える */
+  --fill: var(--red);
+}
+
+/* 色 */
+.c-red {
+  --fill: var(--red);
+}
+.c-gold {
+  --fill: var(--gold);
+}
+
+/* 円 */
+.s-circle {
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: var(--fill);
+}
+
+/* リング（外径一定・線は --ring）。太さのパルスは transform:scale で表現するため
+   ここでは固定太さ。塗りは透明。 */
+.s-ring {
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  border: var(--ring, 3vmin) solid var(--fill);
+  background: transparent;
+}
+
+/* 正方形 */
+.s-square {
+  width: var(--size);
+  height: var(--size);
+  background: var(--fill);
+}
+
+/* 長方形 */
+.s-rect {
+  width: var(--w);
+  height: var(--h);
+  background: var(--fill);
+}
+
+/* 細いバー（長さのモーフは GSAP の scaleX で。基準は原寸の長さ） */
+.s-bar {
+  width: var(--len);
+  height: var(--th, 1.6vmin);
+  background: var(--fill);
   transform-origin: center;
 }
-/* 0%/100% は左上（translate 0,0）で 2 本が重なり、途中は画面全体を自由にドリフト。
-   内側の div で長さ（width）を伸縮。 */
-.floaters .bar-a {
-  animation: barDriftA 31s ease-in-out infinite;
+
+/* ============================================================
+   スクロール誘導（Scroll cue）
+   ============================================================ */
+.scroll-cue {
+  position: absolute;
+  bottom: clamp(1.2rem, 4vh, 2.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  mix-blend-mode: multiply;
 }
-.floaters .bar-a > div {
-  animation: barLenA 15s ease-in-out infinite;
+.scroll-cue__label {
+  font-size: 0.62rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--red);
 }
-.floaters .bar-b {
-  animation: barDriftB 19s ease-in-out infinite;
+.scroll-cue__line {
+  width: 1px;
+  height: 44px;
+  background: var(--red);
+  transform-origin: top center;
+  /* 縦に伸縮する誘導ライン（transform のみ） */
+  animation: scrollCue 1.8s cubic-bezier(0.76, 0, 0.24, 1) infinite;
 }
-.floaters .bar-b > div {
-  animation: barLenB 42s ease-in-out infinite;
+@keyframes scrollCue {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top center;
+  }
+  40% {
+    transform: scaleY(1);
+    transform-origin: top center;
+  }
+  60% {
+    transform: scaleY(1);
+    transform-origin: bottom center;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom center;
+  }
 }
 
-@keyframes barDriftA {
-  0%,
-  100% {
-    transform: translate(0, 0) rotate(28deg);
-  }
-  25% {
-    transform: translate(42vw, 30vh) rotate(78deg);
-  }
-  50% {
-    transform: translate(62vw, 62vh) rotate(-24deg);
-  }
-  75% {
-    transform: translate(16vw, 48vh) rotate(134deg);
-  }
+/* ============================================================
+   登場アニメの初期状態（JS 有効時のみ隠す）
+   GSAP が読み込めない場合に備え、app.js が失敗時は .is-ready を外して
+   全て表示する（下の :not(.is-ready) セレクタで担保）。
+   ============================================================ */
+/* FOUC 防止に opacity のみ。will-change は付けない（恒久レイヤー化すると
+   iOS Safari でタイトル h1 の mix-blend-multiply が切れるため）。 */
+html.js .hero-line,
+html.js .hero-artists li {
+  opacity: 0;
 }
-@keyframes barDriftB {
-  0%,
-  100% {
-    transform: translate(0, 0) rotate(116deg);
-  }
-  25% {
-    transform: translate(58vw, 8vh) rotate(-38deg);
-  }
-  50% {
-    transform: translate(26vw, 56vh) rotate(64deg);
-  }
-  75% {
-    transform: translate(68vw, 30vh) rotate(6deg);
-  }
+
+/* ===== スクロールで出現（reveal：プロフィールカード） ===== */
+html.js .reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
-@keyframes barLenA {
-  0%,
-  100% {
-    width: 12vmin;
-  }
-  50% {
-    width: 86vmin;
-  }
-}
-@keyframes barLenB {
-  0%,
-  100% {
-    width: 80vmin;
-  }
-  50% {
-    width: 16vmin;
-  }
+html.js .reveal.is-visible {
+  opacity: 1;
+  transform: none;
 }
 
 /* ===== Artists / Profile：全カード同じ大きさ・縦積み ===== */
@@ -262,7 +254,7 @@ body::before {
 
 /* プロフィール未登録用のプレースホルダ画像 */
 .profile-card__img--placeholder {
-  bgcolor: var(--cream);
+  background: var(--cream);
 }
 
 .profile-card__name {
@@ -321,33 +313,19 @@ body::before {
   }
 }
 
-/* ===== スクロールで出現（reveal） ===== */
-html.js .reveal {
-  opacity: 0;
-  transform: translateY(32px);
-  transition:
-    opacity 0.7s ease,
-    transform 0.7s ease;
-}
-html.js .reveal.is-visible {
-  opacity: 1;
-  transform: none;
-}
-
-/* ===== モーション控えめ設定を尊重 ===== */
+/* ============================================================
+   モーション控えめ設定を尊重（prefers-reduced-motion）
+   ============================================================ */
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
-    opacity: 1;
-    transform: none;
+  html.js .hero-line,
+  html.js .hero-artists li,
+  html.js .reveal {
+    opacity: 1 !important;
+    transform: none !important;
     transition: none;
   }
-  .floaters .shape,
-  .floaters .bar > div,
-  .floaters .ring {
-    animation: none !important;
-  }
-  .animate-bounce {
-    animation: none !important;
+  .scroll-cue__line {
+    animation: none;
   }
   html {
     scroll-behavior: auto;
@@ -356,4 +334,20 @@ html.js .reveal.is-visible {
 
 html {
   scroll-behavior: smooth;
+}
+
+/* ===== Lenis（スムーススクロール）推奨スタイル =====
+   Lenis 有効時は html に .lenis クラスが付く。ネイティブの smooth と競合させない。 */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
