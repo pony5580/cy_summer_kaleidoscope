@@ -54,7 +54,7 @@
         },
       };
     </script>
-    <link rel="stylesheet" href="styles.css?v=13" />
+    <link rel="stylesheet" href="styles.css?v=15" />
     <!-- JS が有効なときだけ reveal/entrance を隠す（無効時も内容が見えるように） -->
     <script>
       document.documentElement.classList.add("js");
@@ -64,10 +64,6 @@
   <!-- 背景色は html 側に置く（body に background-color を置くと iOS Safari で
        負の z-index ＋ mix-blend の図形が背景の下に隠れるため） -->
   <body class="text-ink font-jp antialiased overflow-x-hidden">
-    <!-- 最背面の不透明クリーム地（body の合成グループ内）。テキスト/テクスチャーの
-         クリームとの乗算ブレンドを成立させるための土台。 -->
-    <div class="paper" aria-hidden="true"></div>
-
     <!-- ===== 画面全体を浮遊する図形（リソグラフ風の重なり／カレイドスコープ）
          中身は app.js が config から生成する。JS 無効時は静かなクリーム地。 ===== -->
     <div class="floaters" aria-hidden="true"></div>
@@ -110,7 +106,7 @@
           <li>Spiralarts</li>
           <li>azusa</li>
           <li>MOJO</li>
-          <li>Abumi</li>
+          <li>Masaya Abumi</li>
           <li>KUKU.</li>
           <li>cpnnn_</li>
         </ul>
@@ -273,9 +269,12 @@
               loading="lazy"
             />
             <div class="profile-card__body">
-              <h3 class="profile-card__name">Abumi</h3>
-              <p class="profile-card__role">Artist</p>
-              <p class="profile-card__bio">TBA</p>
+              <h3 class="profile-card__name">Masaya Abumi</h3>
+              <p class="profile-card__role">Graphic Designer</p>
+              <p class="profile-card__bio">
+                グラフィックデザイナーを生業とする傍ら、実験的プロジェクトとして、絵画をはじめとする造形表現を通じ、領域横断的なアートワークを試みている。
+                10代後半からスケーター、DJの経歴を持つ彼の創作における核心は、「ヒューマニティー」と「ストリートカルチャー」という概念の交錯にある。前者が内包する普遍性と、後者が宿す瞬間性、破壊衝動。この対立的なふたつのエレメントを止揚させることで、人間の潜在的な精神性を現代の都市的感性のもとに提示している。
+              </p>
               <p class="profile-card__links">
                 <a
                   href="https://www.butter.ne.jp/"
