@@ -73,6 +73,7 @@ body {
   /* 位置は JS が inline（top/left/bottom/right のいずれか）で与える。
      ここで top/left の既定値を置くと inline の bottom/right と競合するので置かない。 */
   position: absolute;
+  mix-blend-mode: multiply;
 }
 
 /* ローター：全図形を内包し、ビューポート中心（origin 50% 50%）で回る。
