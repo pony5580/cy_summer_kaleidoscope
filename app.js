@@ -149,6 +149,23 @@
     });
 
     floatersEl.appendChild(rotor);
+
+    /* 図形の合成モード（mix-blend-mode）をアクセスごとにランダムに選ぶ。
+       CSS 変数 --floater-blend をセット → .floater が参照する。 */
+    var BLENDS = [
+      "color-burn",
+      "color-dodge",
+      "difference",
+      "exclusion",
+      "multiply",
+      "hard-light",
+      "hue",
+      "luminosity",
+      "overlay",
+      "plus-lighter",
+    ];
+    var blend = BLENDS[Math.floor(Math.random() * BLENDS.length)];
+    floatersEl.style.setProperty("--floater-blend", blend);
   }
 
   /* ---------- 静止フォールバック（reduced-motion / ライブラリ未読込） ---------- */

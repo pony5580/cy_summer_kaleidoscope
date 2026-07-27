@@ -64,16 +64,15 @@ body {
   pointer-events: none;
 }
 
-/* 各図形の重なりは「半透明の塗り（alpha 合成）」で表現する。
-   ※ 以前は mix-blend-mode: multiply を使っていたが、iOS Safari では
-      アニメーションで各図形が個別の合成レイヤーになると blend が不安定になり、
-      図形が別の図形の下に隠れる不具合が出るため、blend 依存をやめた。
-      alpha 合成はレイヤーに依存しないので全ブラウザで確実に表示される。 */
+/* 各図形の重なりの合成モード。アクセスごとに app.js が --floater-blend を
+   ランダムな 1 種にセットする（未設定時は multiply）。
+   ※ 基本の発色は半透明の塗り（alpha 合成）で担保しているので、blend が iOS で
+      不安定でも図形が消えることはない。 */
 .floater {
   /* 位置は JS が inline（top/left/bottom/right のいずれか）で与える。
      ここで top/left の既定値を置くと inline の bottom/right と競合するので置かない。 */
   position: absolute;
-  mix-blend-mode: multiply;
+  mix-blend-mode: var(--floater-blend, multiply);
 }
 
 /* ローター：全図形を内包し、ビューポート中心（origin 50% 50%）で回る。
