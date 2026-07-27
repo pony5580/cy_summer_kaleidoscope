@@ -52,20 +52,17 @@ body {
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  /* 図形どうしを同じ合成グループにまとめ、重なりで確実に混色させる */
-  isolation: isolate;
 }
 
-/* 各図形（最外ラッパー単位）を乗算合成 → 図形どうしの重なりで色が混ざる。
-   ※ 内側 div ではなくラッパーに掛けるのがポイント。各内側は transform で
-      個別スタッキングコンテキストになるため、内側だと混色が図形内で完結する。
-   ※ will-change / force3D による恒久レイヤー化はしない（iOS Safari で前面
-      テキストとのブレンドが効かなくなるため）。app.js 側で force3D:false。 */
+/* 各図形の重なりは「半透明の塗り（alpha 合成）」で表現する。
+   ※ 以前は mix-blend-mode: multiply を使っていたが、iOS Safari では
+      アニメーションで各図形が個別の合成レイヤーになると blend が不安定になり、
+      図形が別の図形の下に隠れる不具合が出るため、blend 依存をやめた。
+      alpha 合成はレイヤーに依存しないので全ブラウザで確実に表示される。 */
 .floater {
   /* 位置は JS が inline（top/left/bottom/right のいずれか）で与える。
      ここで top/left の既定値を置くと inline の bottom/right と競合するので置かない。 */
   position: absolute;
-  mix-blend-mode: multiply;
 }
 
 /* ローター：全図形を内包し、ビューポート中心（origin 50% 50%）で回る。
@@ -89,12 +86,13 @@ body {
   --fill: var(--red);
 }
 
-/* 色 */
+/* 色（半透明）：重なり部分が透けて“重ね刷り”風に見えるよう alpha を持たせる。
+   非重なり部でも十分に発色する程度の不透明度に調整。 */
 .c-red {
-  --fill: var(--red);
+  --fill: rgba(214, 40, 40, 0.86); /* #D62828 */
 }
 .c-gold {
-  --fill: var(--gold);
+  --fill: rgba(252, 191, 73, 0.9); /* #FCBF49 */
 }
 
 /* 円 */
