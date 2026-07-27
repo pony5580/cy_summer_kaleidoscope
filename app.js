@@ -150,22 +150,32 @@
 
     floatersEl.appendChild(rotor);
 
-    /* 図形の合成モード（mix-blend-mode）をアクセスごとにランダムに選ぶ。
+    /* 図形の合成モード（mix-blend-mode）。
+       iOS(WebKit) はアニメーション中の mix-blend-mode が不安定で図形が別の図形の
+       下に隠れる不具合が出るため、iOS では無効化（normal）する。
+       それ以外のブラウザではアクセスごとに 10 種からランダムに 1 つ適用する。
        CSS 変数 --floater-blend をセット → .floater が参照する。 */
-    var BLENDS = [
-      "color-burn",
-      "color-dodge",
-      "difference",
-      "exclusion",
-      "multiply",
-      "hard-light",
-      "hue",
-      "luminosity",
-      "overlay",
-      "plus-lighter",
-    ];
-    var blend = BLENDS[Math.floor(Math.random() * BLENDS.length)];
-    floatersEl.style.setProperty("--floater-blend", blend);
+    var isIOS =
+      /iP(hone|od|ad)/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (isIOS) {
+      floatersEl.style.setProperty("--floater-blend", "normal");
+    } else {
+      var BLENDS = [
+        "color-burn",
+        "color-dodge",
+        "difference",
+        "exclusion",
+        "multiply",
+        "hard-light",
+        "hue",
+        "luminosity",
+        "overlay",
+        "plus-lighter",
+      ];
+      var blend = BLENDS[Math.floor(Math.random() * BLENDS.length)];
+      floatersEl.style.setProperty("--floater-blend", blend);
+    }
   }
 
   /* ---------- 静止フォールバック（reduced-motion / ライブラリ未読込） ---------- */
