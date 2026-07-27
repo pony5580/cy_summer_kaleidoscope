@@ -54,14 +54,20 @@
         },
       };
     </script>
-    <link rel="stylesheet" href="styles.css?v=12" />
+    <link rel="stylesheet" href="styles.css?v=13" />
     <!-- JS が有効なときだけ reveal/entrance を隠す（無効時も内容が見えるように） -->
     <script>
       document.documentElement.classList.add("js");
     </script>
   </head>
 
-  <body class="bg-cream text-ink font-jp antialiased overflow-x-hidden">
+  <!-- 背景色は html 側に置く（body に background-color を置くと iOS Safari で
+       負の z-index ＋ mix-blend の図形が背景の下に隠れるため） -->
+  <body class="text-ink font-jp antialiased overflow-x-hidden">
+    <!-- 最背面の不透明クリーム地（body の合成グループ内）。テキスト/テクスチャーの
+         クリームとの乗算ブレンドを成立させるための土台。 -->
+    <div class="paper" aria-hidden="true"></div>
+
     <!-- ===== 画面全体を浮遊する図形（リソグラフ風の重なり／カレイドスコープ）
          中身は app.js が config から生成する。JS 無効時は静かなクリーム地。 ===== -->
     <div class="floaters" aria-hidden="true"></div>

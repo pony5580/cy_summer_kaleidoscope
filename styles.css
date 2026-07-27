@@ -15,12 +15,30 @@
   --ink: #333333;
 }
 
+/* 背景色（クリーム）は html に置く。body に background-color を置くと iOS Safari で
+   負の z-index ＋ mix-blend-mode を持つ子（フローティング図形）が背景の下に隠れる。 */
+html {
+  background-color: var(--cream);
+}
+
 /* Jost は Futura に近い幾何学サンセリフ。ローカルに Futura があれば優先 */
 body {
   text-rendering: optimizeLegibility;
   /* iOS Safari で前面テキストと背面図形のブレンドを成立させるため、
-     共通の親（body）を独立した合成グループにする */
+     共通の親（body）を独立した合成グループにする。
+     ※ body 自身には background を置かない（上記 iOS の隠れ対策）。 */
   isolation: isolate;
+}
+
+/* 最背面の不透明クリーム地（body の合成グループ内・最下層 z:-3）。
+   body に背景色を置けない代わりに、テキスト/テクスチャーがクリームと乗算ブレンド
+   できるよう、グループ内の“土台”としてクリームを敷く。 */
+.paper {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background-color: var(--cream);
 }
 
 /* ゴールドのサブタイトルの輪郭（同色の図形に重なっても消えないように）。
