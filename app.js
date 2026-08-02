@@ -8,8 +8,8 @@
 
      .floaters__rotor   … 図形をまとめる静的コンテナ（回転はしない）
        .floater         … 位置アンカー
-         .floater__scroll … 深度別パララックス移動＋緩い揺らぎ（drive 連動）
-           .floater__drift … （予備レイヤー）
+         .floater__scroll … 深度別パララックス移動（drive 連動）
+           .floater__drift … 自由浮遊（1D バリューノイズ駆動・非周期）
              .floater__shape … 図形本体（緩やかな自転 / 速度で微膨張、bar は長さ）
 
    駆動は GSAP + ScrollTrigger + Lenis（CLAUDE.md 準拠）。
@@ -108,6 +108,9 @@
   var floatersEl = doc.querySelector(".floaters");
   var rotor = null;
   var built = [];
+  // 合成モードを次のランダムな 1 種へ進める関数。切り替えを行わない条件
+  // （iOS / reduced-motion）では null のままにして、呼び出し側で無効化する。
+  var cycleBlend = null;
   if (floatersEl) {
     rotor = doc.createElement("div");
     rotor.className = "floaters__rotor";
@@ -153,8 +156,11 @@
     /* 図形の合成モード（mix-blend-mode）。
        iOS(WebKit) はアニメーション中の mix-blend-mode が不安定で図形が別の図形の
        下に隠れる不具合が出るため、iOS では無効化（normal）する。
-       それ以外のブラウザではアクセスごとに 10 種からランダムに 1 つ適用する。
-       CSS 変数 --floater-blend をセット → .floater が参照する。 */
+       それ以外のブラウザでは 10 種からランダムに 1 つ適用し、以降は一定量
+       スクロールするたびに別の 1 種へ切り替える（直前と同じ種類は選ばない）。
+       切り替えのタイミングと図形のフェードは下の GSAP ループが受け持つ。
+       CSS 変数 --floater-blend をセット → .floater が参照する。
+       ※ reduced-motion 時は cycleBlend を持たせず、初回の 1 種で固定。 */
     var isIOS =
       /iP(hone|od|ad)/.test(navigator.userAgent) ||
       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
@@ -173,8 +179,18 @@
         "overlay",
         "plus-lighter",
       ];
-      var blend = BLENDS[Math.floor(Math.random() * BLENDS.length)];
-      floatersEl.style.setProperty("--floater-blend", blend);
+      var blendIndex = Math.floor(Math.random() * BLENDS.length);
+      floatersEl.style.setProperty("--floater-blend", BLENDS[blendIndex]);
+
+      if (!reduceMotion) {
+        cycleBlend = function () {
+          // 直前と同じにならないよう、残り n-1 種から選ぶ
+          blendIndex =
+            (blendIndex + 1 + Math.floor(Math.random() * (BLENDS.length - 1))) %
+            BLENDS.length;
+          floatersEl.style.setProperty("--floater-blend", BLENDS[blendIndex]);
+        };
+      }
     }
   }
 
@@ -242,7 +258,35 @@
   }
 
   var R = gsap.utils.random;
-  var TAU = Math.PI * 2;
+
+  /* ---------- 1D バリューノイズ（fBm） ----------
+     整数格子ごとに hash で疑似乱数を作り、smoothstep で補間する。
+     ・速度が連続 → カクつかず滑らかに漂う
+     ・非周期 → サイン合成のような「読めるリズム」にならない
+     ・tanh で [-1,1] に有界 → ブラウン運動と違い累積ドリフトせず、
+       図形が画面外へ流れ去らない（振幅 a が excursion の上限になる） */
+  function hash1(n) {
+    var s = Math.sin(n * 12.9898) * 43758.5453;
+    return 2 * (s - Math.floor(s)) - 1; // [-1,1)
+  }
+  function noise1(t, seed) {
+    var i = Math.floor(t);
+    var f = t - i;
+    var u = f * f * (3 - 2 * f); // smoothstep（格子の両端で速度 0＝滑らかに繋がる）
+    return hash1(i + seed) * (1 - u) + hash1(i + 1 + seed) * u;
+  }
+  // 3 オクターブ。周波数比を非整数にしてうねりが噛み合わないようにする。
+  // tanh のゲインは「典型的な振れ幅」の調整用（大きいほど端に張り付く動きになる）。
+  function fbm(t, seed) {
+    return Math.tanh(
+      2.6 *
+        (noise1(t, seed) * 0.6 +
+          noise1(t * 2.13, seed + 37.7) * 0.3 +
+          noise1(t * 4.31, seed + 91.3) * 0.12),
+    );
+  }
+
+  var FREE_K = 1.6; // 自由浮遊の振幅倍率（1.0 = 旧サイン合成と同等）
 
   // 図形ごとのモーション係数を前計算し、初期状態（アンカー）を確定
   built.forEach(function (b, i) {
@@ -256,21 +300,20 @@
     b.base = cfg.baseRot || 0;
     b.isBar = !!cfg.barScroll;
 
-    // --- 自由浮遊：連続した複数サイン波の合成 ---
-    // 各軸を 2 つの非整数比サインで重ねる。速度が常に連続＝停止せず滑らかに漂い、
-    // 周期が噛み合わないので規則的なループに見えない。
+    // --- 自由浮遊：ノイズ駆動 ---
+    // 図形ごとに「性格」を乱数レンジから引く。seed も含めて毎回引き直すので、
+    // リロードのたびに軌道もテンポも変わる。
     var dep = cfg.depth;
-    var A = vmin(15 + dep * 26); // 振幅（depth が大きいほど大きく動く）
-    b.fx = [
-      { a: A * 0.62, w: R(0.33, 0.52), p: R(0, TAU) },
-      { a: A * 0.34, w: R(0.55, 0.82), p: R(0, TAU) },
-    ];
-    b.fy = [
-      { a: A * 0.6, w: R(0.3, 0.48), p: R(0, TAU) },
-      { a: A * 0.34, w: R(0.6, 0.9), p: R(0, TAU) },
-    ];
-    b.fr = { a: 12 + dep * 22, w: R(0.28, 0.5), p: R(0, TAU) }; // 自転（deg）
-    b.fs = { a: 0.08 + dep * 0.06, w: R(0.3, 0.55), p: R(0, TAU) }; // 呼吸
+    var speed = R(0.35, 1.5); // 鈍い図形と機敏な図形が混ざる
+    var amp = R(0.7, 1.35); // 同じ depth でも振れ幅に差が出る
+    var A = vmin((15 + dep * 26) * FREE_K * amp); // 振幅の上限（px）
+    // x / y / 自転 / 呼吸を独立チャンネルに。時間スケールも seed も別々なので、
+    // 軌道が楕円や 8 の字に落ちず不定形に漂う。
+    // w は「1 格子あたり 1/w 秒」。0.16*speed → 4〜18 秒で 1 セル。
+    b.nx = { a: A, w: 0.16 * speed * R(0.8, 1.25), s: R(0, 9999) };
+    b.ny = { a: A * R(0.75, 1.1), w: 0.16 * speed * R(0.8, 1.25), s: R(0, 9999) };
+    b.nr = { a: (12 + dep * 22) * amp, w: 0.13 * speed * R(0.7, 1.3), s: R(0, 9999) }; // 自転（deg）
+    b.ns = { a: 0.08 + dep * 0.06, w: 0.11 * speed * R(0.7, 1.3), s: R(0, 9999) }; // 呼吸
 
     if (cfg.center) gsap.set(b.shape, { xPercent: -50, yPercent: -50 });
     gsap.set(b.shape, {
@@ -284,6 +327,27 @@
   var RAMP = 1.8; // 秒。静止 → 自由浮遊へ滑らかに立ち上がる時間
   var STIFF = 0.09; // スクロール追従バネの剛性
   var DAMP = 0.85; // 減衰（1 に近いほど慣性が残る）
+
+  // --- 自由浮遊の振幅をスクロール速度で駆動（活性度 act）---
+  // スクロール中は振れ幅がフルに開き、手を止めるとゆっくり IDLE_K まで収縮する。
+  // 0 にはしないので完全には止まらず、静かに漂い続ける。
+  var IDLE_K = 0.35; // 静止時に残る振幅（フル振幅に対する比）
+  // vp はページ全長で正規化された値なので、そのまま使うとページが長いほど
+  // 同じ px/s でも活性度が下がってしまう。maxScroll を掛けて px/frame に戻し、
+  // 「この速度でフルに開く」を px/s で指定する（60fps 基準）。
+  var ACT_FULL_PXPS = 400; // この速度以上のスクロールで振幅がフルに開く
+  var ACT_ATTACK = 0.18; // 立ち上がり（大きいほど即反応。約 0.1 秒で追従）
+  var ACT_RELEASE = 0.012; // 収まり（小さいほどゆっくり収縮。約 4 秒で静止側へ）
+
+  // --- 合成モードの切り替え（累計スクロール量で駆動）---
+  // mix-blend-mode は transition が効かず、そのまま差し替えると色が飛んで唐突に
+  // 見える。そこで図形の opacity を一度落とし、底で差し替えてから戻すことで
+  // 「一瞬すっと引いて別の色で戻ってくる」変化にする。
+  // 上下どちらのスクロールも距離としてカウントし、静止中は絶対に切り替わらない。
+  var BLEND_STEP = [1.2, 2.0]; // 次の切り替えまでの距離（画面高の倍数。毎回ランダム）
+  var FADE_OUT = 0.3; // 秒。薄くなるまで
+  var FADE_IN = 0.6; // 秒。戻るまで（戻りをゆっくりにして引っかかりを消す）
+  var FADE_MIN = 0.3; // 底の opacity（0 にすると消えて見えるので残す）
 
   var maxScroll = 1;
   function measure() {
@@ -302,39 +366,80 @@
     x = x < 0 ? 0 : x > 1 ? 1 : x;
     return x * x * (3 - 2 * x); // smoothstep（両端で速度 0＝滑らかな立ち上がり）
   }
-  function sines(list, t) {
-    var s = 0;
-    for (var k = 0; k < list.length; k++) {
-      s += list[k].a * Math.sin(list[k].w * t + list[k].p);
-    }
-    return s;
-  }
-
   var p = 0; // 平滑化スクロール drive（0..1 近傍、overshoot で外れることあり）
   var vp = 0; // その速度
+  var act = 0; // 活性度 0..1（スクロール速度を非対称スムージングしたもの）
   var started = false;
   var startTime = 0;
+  var prevTime = 0;
+
+  var lastTop = 0; // 前フレームのスクロール位置（累計距離の計算用）
+  var blendAcc = 0; // 前回の切り替えからの累計スクロール距離（px）
+  var blendGap = 0; // 次に切り替えるまでの距離（px）。start() で決める
+  var fadeT = -1; // フェード経過秒。-1 は非進行
+  var fadeSwapped = false; // 今回のフェードで差し替え済みか
 
   // 毎フレーム（gsap.ticker、連続駆動）：スクロールのバネ追従と連続サインの自由浮遊を
   // 合成して適用。time は ticker の経過秒。env で静止→浮遊を滑らかに立ち上げる。
   function frame(time) {
     if (startTime === 0) startTime = time;
     var t = time - startTime;
+    var dt = Math.min(0.1, t - prevTime); // タブ復帰時の巨大な dt を切り詰める
+    prevTime = t;
     var env = smooth01(t / RAMP);
 
     // スクロール追従（減衰バネ＝物理的な慣性・緩急）
-    var target = scrollTop() / maxScroll;
+    var top = scrollTop();
+    var target = top / maxScroll;
     vp = (vp + (target - p) * STIFF) * DAMP;
     p += vp;
 
+    // 累計スクロール距離が閾値を超えたら合成モードのフェード切り替えを開始。
+    // 上下どちらの移動も加算するので、行ったり来たりでも進む。
+    blendAcc += Math.abs(top - lastTop);
+    lastTop = top;
+    if (cycleBlend && fadeT < 0 && blendAcc >= blendGap) {
+      blendAcc = 0;
+      blendGap = R(BLEND_STEP[0], BLEND_STEP[1]) * window.innerHeight;
+      fadeT = 0;
+      fadeSwapped = false;
+    }
+
+    // フェードの進行。落ちきった底で blend を差し替える。
+    var fade = 1;
+    if (fadeT >= 0) {
+      fadeT += dt;
+      if (fadeT < FADE_OUT) {
+        fade = 1 - (1 - FADE_MIN) * smooth01(fadeT / FADE_OUT);
+      } else {
+        if (!fadeSwapped) {
+          cycleBlend();
+          fadeSwapped = true;
+        }
+        var u = (fadeT - FADE_OUT) / FADE_IN;
+        fade = FADE_MIN + (1 - FADE_MIN) * smooth01(u);
+        if (u >= 1) fadeT = -1;
+      }
+    }
+
+    // 活性度：立ち上がりは速く、収まりは遅い非対称スムージング。
+    // → スクロールした瞬間にふわっと開き、止めたあとゆっくり収縮していく。
+    var drive = clamp01((Math.abs(vp) * maxScroll * 60) / ACT_FULL_PXPS);
+    act += (drive - act) * (drive > act ? ACT_ATTACK : ACT_RELEASE);
+    // 振幅係数。act=0 でも IDLE_K 残るので完全には止まらない。
+    var amp = env * (IDLE_K + (1 - IDLE_K) * act);
+
     for (var i = 0; i < built.length; i++) {
       var b = built[i];
-      // 自由浮遊レイヤー（連続サイン＝停止せず滑らか）
+      // 自由浮遊レイヤー（ノイズ駆動＝非周期だが滑らか。振れ幅は amp で伸縮）
       gsap.set(b.drift, {
-        x: env * sines(b.fx, t),
-        y: env * sines(b.fy, t),
-        rotation: env * b.fr.a * Math.sin(b.fr.w * t + b.fr.p),
-        scale: 1 + env * b.fs.a * Math.sin(b.fs.w * t + b.fs.p),
+        x: amp * b.nx.a * fbm(t * b.nx.w, b.nx.s),
+        y: amp * b.ny.a * fbm(t * b.ny.w, b.ny.s),
+        rotation: amp * b.nr.a * fbm(t * b.nr.w, b.nr.s),
+        scale: 1 + amp * b.ns.a * fbm(t * b.ns.w, b.ns.s),
+        // blend 差し替え時のみ 1 未満。opacity は .floater の内側に掛かるので
+        // .floater 自身の mix-blend-mode は保たれる。
+        opacity: fade,
       });
       // スクロール連動パララックス層
       gsap.set(b.scroll, { x: b.parX * p * FLOAT_K, y: b.parY * p * FLOAT_K });
@@ -354,6 +459,8 @@
   function start() {
     if (started) return;
     started = true;
+    lastTop = scrollTop(); // 開始位置を基準に累計距離を数え始める
+    blendGap = R(BLEND_STEP[0], BLEND_STEP[1]) * window.innerHeight;
     gsap.ticker.add(frame); // 一度始まれば連続駆動（自由浮遊が滑らかに続く）
   }
 
