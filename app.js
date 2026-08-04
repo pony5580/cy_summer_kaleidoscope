@@ -456,11 +456,43 @@
     }
   }
 
+  /* ---------- 作家カード画像の先読み・先デコード ----------
+     loading="lazy" のままだと、フェッチ → デコード → テクスチャ転送が
+     「カードがビューポートに近づいた瞬間」＝ reveal のフェードインと同じ
+     タイミングに集中する。iOS はデコードが遅くメモリ逼迫時にデコード結果を
+     破棄して再デコードするため、ここでスクロールが引っかかる。
+     最初のスクロールを合図に、アイドル時間で 1 枚ずつ decode() まで
+     済ませておき、reveal のフレームには載せない。 */
+  var warmed = false;
+  function warmProfileImages() {
+    if (warmed) return;
+    warmed = true;
+    var imgs = [].slice.call(doc.querySelectorAll(".profile-card__img"));
+    var idle =
+      window.requestIdleCallback ||
+      function (fn) {
+        return setTimeout(fn, 200);
+      };
+    var i = 0;
+    function next() {
+      if (i >= imgs.length) return;
+      var im = imgs[i++];
+      im.loading = "eager"; // 遅延読み込みを解除してこの場で取りに行かせる
+      var after = function () {
+        idle(next); // 1 枚ずつ順に。同時デコードでメインスレッドを詰まらせない
+      };
+      if (im.decode) im.decode().then(after, after);
+      else after();
+    }
+    idle(next);
+  }
+
   function start() {
     if (started) return;
     started = true;
     lastTop = scrollTop(); // 開始位置を基準に累計距離を数え始める
     blendGap = R(BLEND_STEP[0], BLEND_STEP[1]) * window.innerHeight;
+    warmProfileImages();
     gsap.ticker.add(frame); // 一度始まれば連続駆動（自由浮遊が滑らかに続く）
   }
 
