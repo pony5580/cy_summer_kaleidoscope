@@ -562,7 +562,103 @@
     });
   }
 
-  /* ---------- 7. リサイズ時に基準を更新 ---------- */
+  /* ---------- 7. アンカー（広告などからの直リンク） ----------
+     各カードに id を振ってあるので #shiggy のように個別に飛べる。ただし
+     ・カードは html.js .reveal { opacity:0 } で伏せてある
+     ・Lenis がスクロールを乗っ取っている
+     の 2 点があるため、素のアンカーだけでは「飛んだ先が真っ白」になりうる。
+     そこでブラウザ標準のジャンプは殺し、常にトップから Lenis で滑らせて運ぶ。
+     道中のカードは通過時に reveal されるので、目的地までの内容も目に入る。 */
+
+  function targetFromHash(hash) {
+    if (!hash || hash.length < 2) return null;
+    try {
+      return doc.getElementById(decodeURIComponent(hash.slice(1)));
+    } catch (e) {
+      return null; // 壊れた %エンコードでも落とさない
+    }
+  }
+
+  var ANCHOR_OFFSET = -24; // 着地位置の余白（px）
+  var ANCHOR_MIN = 1.2; // 秒。最短のスクロール時間
+  var ANCHOR_MAX = 4.0; // 秒。最長（ページ末尾まででもこの範囲に収める）
+  var ANCHOR_SPEED = 1400; // px/秒 相当。距離からスクロール時間を決める
+
+  // Lenis 既定のイージングは前のめりで、序盤に距離の大半を消化してしまう。
+  // 道中を読ませたいので、加速→巡航→減速の ease-in-out にする。
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function goTo(el, duration) {
+    start(); // 直リンク着地でも図形を動かし始める
+    if (lenis) {
+      lenis.scrollTo(el, {
+        offset: ANCHOR_OFFSET,
+        duration: duration,
+        easing: easeInOutCubic,
+        onComplete: function () {
+          // 道中の遅延読み込みで高さが動いていることがあるので着地を微修正
+          gsap.delayedCall(0.35, function () {
+            ScrollTrigger.refresh();
+            lenis.scrollTo(el, { offset: ANCHOR_OFFSET, duration: 0.45 });
+          });
+        },
+      });
+    } else {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+
+  // 距離に応じたスクロール時間。近ければ速く、遠くても間延びさせない。
+  function travelTime(el) {
+    var dist = Math.abs(el.getBoundingClientRect().top);
+    return Math.max(ANCHOR_MIN, Math.min(ANCHOR_MAX, dist / ANCHOR_SPEED));
+  }
+
+  /* 読み込み時にハッシュがある場合は、いきなり飛ばさずトップから流して運ぶ。
+     道中のカードは通過時に ScrollTrigger が順次 reveal するので、目的地までの
+     内容も目に入る。ブラウザ標準のジャンプと復元は抑止する。 */
+  var initial = targetFromHash(window.location.hash);
+  if (initial) {
+    if (window.history && "scrollRestoration" in window.history) {
+      history.scrollRestoration = "manual";
+    }
+    var toTop = function () {
+      window.scrollTo(0, 0);
+      if (lenis) lenis.scrollTo(0, { immediate: true });
+    };
+    toTop();
+    window.addEventListener("load", function () {
+      toTop(); // 読み込み完了時のブラウザ側ジャンプを打ち消す
+      // ヒーローの登場を見せてから走り出す
+      gsap.delayedCall(0.9, function () {
+        ScrollTrigger.refresh();
+        goTo(initial, travelTime(initial));
+      });
+    });
+  }
+
+  // ページ内リンク（#artists など）は Lenis 経由で滑らかに送る
+  doc.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var el = targetFromHash(a.getAttribute("href"));
+    if (!el) return;
+    e.preventDefault();
+    goTo(el, travelTime(el));
+    if (window.history && history.pushState) {
+      history.pushState(null, "", a.getAttribute("href"));
+    }
+  });
+
+  // 戻る／進むでのハッシュ変更にも追従
+  window.addEventListener("hashchange", function () {
+    var el = targetFromHash(window.location.hash);
+    if (el) goTo(el, travelTime(el));
+  });
+
+  /* ---------- 8. リサイズ時に基準を更新 ---------- */
   window.addEventListener("resize", function () {
     measure(); // スクロール量の最大値を測り直す
     ScrollTrigger.refresh();

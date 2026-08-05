@@ -366,6 +366,15 @@ html.js .reveal.is-visible {
   opacity: 0.85;
 }
 
+/* アンカーで直接飛んできたとき、対象がビューポート上端に貼り付かないよう余白を取る。
+   広告などから #shiggy のように個別カードへ直接リンクされる想定。 */
+:target,
+.profile-card,
+.event-group,
+section[id] {
+  scroll-margin-top: clamp(1.5rem, 6vh, 4rem);
+}
+
 /* ===== Artists / Profile：全カード同じ大きさ・縦積み ===== */
 .profile-list {
   list-style: none;
