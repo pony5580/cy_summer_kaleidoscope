@@ -45,7 +45,9 @@ body *:not(.floater__shape) {
 }
 /* 図形は面積が大きいぶん少し遅らせて追従させる（一斉に変わると唐突なので） */
 .floater__shape {
-  transition: background-color 1.4s ease, border-color 1.4s ease;
+  transition:
+    background-color 1.4s ease,
+    border-color 1.4s ease;
 }
 
 /* Jost は Futura に近い幾何学サンセリフ。ローカルに Futura があれば優先 */
@@ -324,9 +326,8 @@ html.js .reveal.is-visible {
   gap: 0.9rem;
   flex-wrap: wrap;
   margin: 3.5rem 0 1.25rem;
-  padding: 0.9rem 1rem 0.75rem;
-  background: #fff;
   border-radius: 2px;
+  justify-content: center;
 }
 .event-group__en {
   font-family: "Jost", "Futura", sans-serif;
@@ -364,6 +365,163 @@ html.js .reveal.is-visible {
   line-height: 1.75;
   color: var(--ink);
   opacity: 0.85;
+}
+
+/* ============================================================
+   VENUE：会場（Cy Kamakura）
+   イベントの見出しとカードの語彙をそのまま使う。本文は白パネルに載せ、
+   実用情報（住所・営業時間など）は定義リストで整理する。
+   ============================================================ */
+.venue-head {
+  margin-bottom: 2rem;
+}
+
+.venue-head__label {
+  font-family: "Jost", "Futura", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.75rem;
+  color: var(--red);
+  margin: 0 0 0.6rem;
+}
+
+.venue-head__title {
+  font-family: "Jost", "Futura", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.15;
+  font-size: clamp(1.05rem, 3.2vw, 1.5rem);
+  color: var(--ink);
+  margin: 0;
+}
+
+/* 手書きの Cy ロゴ。中のテキストは読み上げ用に残し、視覚的には送り出して隠す。
+   既定は PNG をそのまま（黒インク）敷いておき、mask が使える環境では
+   mask + background-color に切り替えてサイトの配色で塗る（配色切り替えにも追従）。 */
+.venue-head__logo {
+  display: block;
+  width: clamp(150px, 32vw, 250px);
+  aspect-ratio: 640 / 527;
+  margin-top: 0.5rem;
+  text-indent: -9999px;
+  overflow: hidden;
+  background: url("assets/cy_logo_trim.png") no-repeat left center / contain;
+}
+
+.venue-head__reading {
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  color: var(--ink);
+  opacity: 0.6;
+  margin: 0.6rem 0 0;
+}
+
+/* 会場写真：白パネルの直上に置く。角丸と幅をカードに揃えて一続きに見せる。 */
+.venue-photo {
+  margin: 0 0 1.25rem;
+}
+.venue-photo img {
+  width: 100%;
+  height: clamp(200px, 38vw, 380px);
+  object-fit: cover;
+  object-position: center;
+  border-radius: 2px;
+  display: block;
+}
+
+.venue-card {
+  background: #fff;
+  border-radius: 2px;
+  padding: 1.75rem 1.5rem;
+}
+
+.venue-lead {
+  font-family: "Zen Kaku Gothic New", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.1rem, 3.6vw, 1.5rem);
+  letter-spacing: 0.08em;
+  color: var(--red);
+  margin: 0 0 1.1rem;
+}
+
+.venue-bio {
+  margin: 0 0 0.9rem;
+  font-size: 0.9rem;
+  line-height: 1.95;
+  color: var(--ink);
+}
+.venue-bio:last-of-type {
+  margin-bottom: 0;
+}
+
+/* 実用情報：見出しと内容を 2 カラムで揃える */
+.venue-info {
+  margin: 1.6rem 0 0;
+  padding-top: 1.3rem;
+  border-top: 1px solid rgba(51, 51, 51, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.venue-info__item {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.venue-info__item dt {
+  font-family: "Jost", "Futura", sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--red);
+  padding-top: 0.15em;
+}
+
+.venue-info__item dd {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.8;
+  color: var(--ink);
+}
+
+.venue-info__item dd a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(51, 51, 51, 0.3);
+}
+.venue-info__item dd a:hover {
+  opacity: 0.7;
+}
+
+/* 補足（営業時間の但し書きなど）。同じ行に続けて置く用。 */
+.venue-info__sub {
+  font-size: 0.78rem;
+  color: var(--ink);
+  opacity: 0.6;
+  margin-left: 0.4em;
+}
+
+/* 改行して独立した行に置く補足（アクセスの道順）。行頭を揃える。 */
+.venue-info__sub--block {
+  display: block;
+  margin-left: 0;
+  margin-top: 0.15rem;
+}
+
+@media (max-width: 640px) {
+  .venue-info__item {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+  .venue-info__sub {
+    display: block;
+    margin-left: 0;
+  }
 }
 
 /* アンカーで直接飛んできたとき、対象がビューポート上端に貼り付かないよう余白を取る。

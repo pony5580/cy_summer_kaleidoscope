@@ -59,7 +59,7 @@
         },
       };
     </script>
-    <link rel="stylesheet" href="styles.css?v=27" />
+    <link rel="stylesheet" href="styles.css?v=31" />
     <!-- JS が有効なときだけ reveal/entrance を隠す（無効時も内容が見えるように） -->
     <script>
       document.documentElement.classList.add("js");
@@ -124,7 +124,7 @@
         <p
           class="hero-line mt-1 tracking-wide text-ink text-[clamp(0.7rem,2.6vw,1.2rem)] mix-blend-multiply"
         >
-          Cy Kamakura
+          <img src="assets/cy_logo_trim.png" width="50px" alt="CY logo" />
         </p>
       </div>
 
@@ -137,10 +137,7 @@
 
     <!-- ===== EVENT：オープニングレセプション（8.8） =====
          会期初日のレセプション。作家紹介より先に来る。 -->
-    <section
-      id="event"
-      class="border-t border-ink/15 px-6 md:px-14 py-24 md:py-36"
-    >
+    <section id="event" class="px-6 md:px-14 py-24 md:py-36">
       <div class="max-w-4xl mx-auto">
         <!-- 背面の図形と重なっても沈まないよう、ヒーローと同じ乗算合成にする -->
         <header class="event-head reveal mix-blend-multiply">
@@ -409,10 +406,7 @@
     </section>
 
     <!-- ===== ARTISTS / PROFILE ===== -->
-    <section
-      id="artists"
-      class="border-t border-ink/15 px-6 md:px-14 py-24 md:py-36"
-    >
+    <section id="artists" class="px-6 md:px-14 py-24 md:py-36">
       <div class="max-w-4xl mx-auto">
         <!-- 全カード同じ大きさ・縦積み -->
         <ul class="profile-list">
@@ -618,20 +612,96 @@
       </div>
     </section>
 
+    <!-- ===== VENUE：会場（Cy Kamakura）=====
+         直後のフッターに地図があるので、その手前に置いて情報 → 地図とつなげる。 -->
+    <section id="venue" class="px-6 md:px-14 py-24 md:py-36">
+      <div class="max-w-4xl mx-auto">
+        <!-- 背面の図形と重なっても沈まないよう、他の見出しと同じ乗算合成 -->
+        <header class="venue-head reveal mix-blend-multiply">
+          <h2 class="venue-head__title">
+            <span class="venue-head__logo" role="img" aria-label="Cy">Cy</span>
+          </h2>
+          <p class="venue-head__reading">サイ ／ 鎌倉 由比ガ浜</p>
+        </header>
+
+        <div class="venue-card reveal">
+          <figure class="venue-photo reveal">
+            <img
+              src="venue/interior.jpg"
+              alt="Cy の店内。カウンターに自家製の果実酒の瓶が並ぶ"
+              width="1200"
+              height="800"
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
+          <p class="venue-bio">
+            由比ガ浜の六地蔵交差点にほど近い、ギャラリーを併設したレストラン。2021
+            年 9 月開店。<br />
+            店内のいたるところに作品が展示され、鑑賞するだけでなく購入もできる。展示は毎月変わり、絵や写真を中心に並ぶ。食事をしながらアート作品を身近に感じられる場所として、「ART
+            GALLERY &amp; RESTAURANT」を掲げている。
+          </p>
+          <p class="venue-bio">
+            料理はイタリアンやスパニッシュをベースに、鎌倉の野菜などを使ったもの。前菜から肉料理、パスタまで。ドリンクは自家製の果実酒、地元の
+            YOROCCO
+            BEER、ワイン、焼酎のほか、オーストラリア産のオーガニックシードルも人気。
+          </p>
+
+          <dl class="venue-info">
+            <div class="venue-info__item">
+              <dt>住所</dt>
+              <dd>
+                〒248-0014 神奈川県鎌倉市由比ガ浜 1-9-4
+                <br />
+                <a
+                  href="https://maps.app.goo.gl/5gy1o3KDkvUqx7Si8"
+                  target="_blank"
+                  >Google Map</a
+                >
+              </dd>
+            </div>
+            <div class="venue-info__item">
+              <dt>アクセス</dt>
+              <dd>
+                江ノ電 和田塚駅から徒歩 3 分
+                <span class="venue-info__sub venue-info__sub--block"
+                  >由比ガ浜の六地蔵交差点を市役所方面へ。盆栽店「緑屋
+                  凛」の角を左折してすぐ</span
+                >
+              </dd>
+            </div>
+            <div class="venue-info__item">
+              <dt>営業時間</dt>
+              <dd>
+                14:00 — 24:00<span class="venue-info__sub"
+                  >（ギャラリー展示期間中）</span
+                ><br />
+                17:00 — 24:00<span class="venue-info__sub"
+                  >（展示休止期間）</span
+                >
+              </dd>
+            </div>
+            <div class="venue-info__item">
+              <dt>定休日</dt>
+              <dd>水曜日</dd>
+            </div>
+          </dl>
+
+          <p class="profile-card__links">
+            <a
+              href="https://www.instagram.com/cykamakura/"
+              target="_blank"
+              rel="noopener"
+              >Instagram</a
+            >
+          </p>
+        </div>
+      </div>
+    </section>
+
     <!-- ===== FOOTER（ギャラリーの地図のみ） ===== -->
     <footer class="bg-white">
-      <div class="px-6 pt-6 pb-4">
-        <iframe
-          title="Cy Kamakura の地図"
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3255.603576055137!2d139.5438300757716!3d35.31583047270733!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x601845f5749e530f%3A0x2b7ac4459fc1b6cb!2zQ1kg44K144Kk!5e0!3m2!1sja!2sjp!4v1784904042726!5m2!1sja!2sjp"
-          class="w-full h-[55vh] md:h-[450px] block"
-          style="border: 0"
-          allowfullscreen=""
-          loading="lazy"
-          referrerpolicy="strict-origin-when-cross-origin"
-        ></iframe>
-      </div>
-      <p class="text-black text-xs text-center pb-4">
+      <p class="text-black text-xs text-center py-4">
         © 2026 Cy Kamakura / PONY
       </p>
     </footer>
