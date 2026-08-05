@@ -8,11 +8,44 @@
    動き（transform / opacity）は基本的に JS 側で与える。
    ============================================================ */
 
+/* 配色は RGB の三値で持つ。Tailwind 側も rgb(var(--x-rgb) / <alpha-value>)
+   で参照しているので、この 4 つを差し替えるとページ全体（背景・文字・図形・
+   罫線）の色が一斉に変わる。--cream などの hex 版は既存の記述用の別名。 */
 :root {
-  --cream: #f4ebd0;
-  --red: #d62828;
-  --gold: #fcbf49;
-  --ink: #333333;
+  --cream-rgb: 244 235 208; /* #F4EBD0 */
+  --red-rgb: 214 40 40; /* #D62828 */
+  --gold-rgb: 252 191 73; /* #FCBF49 */
+  --ink-rgb: 51 51 51; /* #333333 */
+
+  --cream: rgb(var(--cream-rgb));
+  --red: rgb(var(--red-rgb));
+  --gold: rgb(var(--gold-rgb));
+  --ink: rgb(var(--ink-rgb));
+}
+
+/* イベント（オープニングレセプション）エリアの配色。
+   event/88/img.png のフライヤーから抽出したティール系に差し替える。
+   app.js の ScrollTrigger が #event の出入りで html.theme-event を付け外しする。 */
+.theme-event {
+  --cream-rgb: 224 229 216; /* #E0E5D8 紙の地 */
+  --red-rgb: 14 124 106; /* #0E7C6A 見出し・リンク */
+  --gold-rgb: 122 201 188; /* #7AC9BC 図形のアクセント */
+  --ink-rgb: 36 64 58; /* #24403A 本文 */
+}
+
+/* 配色が切り替わるときだけ効かせる色のトランジション。
+   カスタムプロパティ自体は補間されないが、それを参照している
+   background-color / color / border-color は補間されるので滑らかに変わる。 */
+body,
+body *:not(.floater__shape) {
+  transition:
+    background-color 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+/* 図形は面積が大きいぶん少し遅らせて追従させる（一斉に変わると唐突なので） */
+.floater__shape {
+  transition: background-color 1.4s ease, border-color 1.4s ease;
 }
 
 /* Jost は Futura に近い幾何学サンセリフ。ローカルに Futura があれば優先 */
@@ -100,10 +133,10 @@ body {
 /* 色（半透明）：重なり部分が透けて“重ね刷り”風に見えるよう alpha を持たせる。
    非重なり部でも十分に発色する程度の不透明度に調整。 */
 .c-red {
-  --fill: rgba(214, 40, 40, 0.86); /* #D62828 */
+  --fill: rgb(var(--red-rgb) / 0.86);
 }
 .c-gold {
-  --fill: rgba(252, 191, 73, 0.9); /* #FCBF49 */
+  --fill: rgb(var(--gold-rgb) / 0.9);
 }
 
 /* 円 */
@@ -219,6 +252,120 @@ html.js .reveal.is-visible {
   transform: none;
 }
 
+/* ============================================================
+   EVENT：オープニングレセプション（8.8）
+   カードは Artists と同じ .profile-card を流用する（見た目とスクロール時の
+   先読み対象 .profile-card__img を共通化するため）。ここでは見出し・
+   フライヤー・ラインナップ・メニューだけを定義する。
+   ============================================================ */
+.event-head {
+  margin-bottom: 2.5rem;
+}
+
+.event-head__label {
+  font-family: "Jost", "Futura", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.75rem;
+  color: var(--red);
+  margin: 0 0 0.5rem;
+}
+
+.event-head__title {
+  font-family: "Zen Kaku Gothic New", sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  font-size: clamp(1.1rem, 3.4vw, 1.6rem);
+  color: var(--ink);
+  margin: 0;
+}
+
+.event-head__date {
+  font-family: "Jost", "Futura", sans-serif;
+  font-weight: 700;
+  font-size: clamp(2.2rem, 9vw, 3.6rem);
+  line-height: 1.05;
+  color: var(--red);
+  margin: 0.6rem 0 0;
+}
+
+.event-head__dow {
+  font-size: 0.4em;
+  letter-spacing: 0.1em;
+  vertical-align: 0.55em;
+  margin-left: 0.35em;
+}
+
+.event-head__time {
+  font-family: "Jost", "Futura", sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.1rem, 4vw, 1.6rem);
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  margin: 0.2rem 0 0;
+}
+
+.event-head__note {
+  font-family: "Jost", "Futura", sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  opacity: 0.65;
+  margin: 0.5rem 0 0;
+}
+
+/* グループ見出し（Music Selector / Food）
+   赤文字が背面の赤い図形に重なると沈むため、カードと同じ白地に載せる。 */
+.event-group {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin: 3.5rem 0 1.25rem;
+  padding: 0.9rem 1rem 0.75rem;
+  background: #fff;
+  border-radius: 2px;
+}
+.event-group__en {
+  font-family: "Jost", "Futura", sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 1.05rem;
+  color: var(--red);
+}
+.event-group__ja {
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  opacity: 0.6;
+}
+
+/* メニュー（STEAM DOG） */
+.menu {
+  margin: 1.1rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(51, 51, 51, 0.12);
+}
+.menu__item dt {
+  font-family: "Zen Kaku Gothic New", sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--red);
+}
+.menu__item dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.75;
+  color: var(--ink);
+  opacity: 0.85;
+}
+
 /* ===== Artists / Profile：全カード同じ大きさ・縦積み ===== */
 .profile-list {
   list-style: none;
@@ -238,6 +385,13 @@ html.js .reveal.is-visible {
   padding: 1rem;
   border-radius: 2px;
   background: rgba(255, 255, 255, 1); /* 背景ノイズ上でも読みやすく */
+}
+
+/* メニューなどで背が高くなるカードは、画像を上端に揃える。
+   （.profile-card の align-items: center より後に置くこと。同じ詳細度なので
+     前に置くと後勝ちで負ける） */
+.profile-card--wide {
+  align-items: start;
 }
 
 .profile-card__img {
@@ -277,6 +431,17 @@ html.js .reveal.is-visible {
   font-size: 0.9rem;
   line-height: 1.85;
   color: var(--ink);
+}
+
+/* 機材・スタイルなどの短い併記（DJ JUNO B の「Cassette DJ／MPC Live」など） */
+.profile-card__tags {
+  margin: 0.7rem 0 0;
+  font-family: "Jost", "Futura", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.55;
 }
 
 .profile-card__links {
@@ -323,6 +488,13 @@ html.js .reveal.is-visible {
   }
   .scroll-cue__line {
     animation: none;
+  }
+  /* 配色切り替えのクロスフェードも止める（切り替え自体は行われない設定だが、
+     GSAP 無しで静止表示になった場合の保険） */
+  body,
+  body *:not(.floater__shape),
+  .floater__shape {
+    transition: none;
   }
   html {
     scroll-behavior: auto;

@@ -545,7 +545,24 @@
     },
   });
 
-  /* ---------- 6. リサイズ時に基準を更新 ---------- */
+  /* ---------- 6. イベントエリアの配色切り替え ----------
+     #event に入っている間だけ html に theme-event を付ける。
+     配色そのものは CSS 変数（--*-rgb）で持っているので、クラスの付け外しだけで
+     背景・文字・罫線・図形の色が一斉に変わる（補間は CSS の transition が担当）。
+     しきい値はビューポート中央。セクションの上端／下端が中央を跨いだ時点で入れ替わる。 */
+  var eventSection = doc.querySelector("#event");
+  if (eventSection) {
+    ScrollTrigger.create({
+      trigger: eventSection,
+      start: "top center",
+      end: "bottom center",
+      onToggle: function (self) {
+        root.classList.toggle("theme-event", self.isActive);
+      },
+    });
+  }
+
+  /* ---------- 7. リサイズ時に基準を更新 ---------- */
   window.addEventListener("resize", function () {
     measure(); // スクロール量の最大値を測り直す
     ScrollTrigger.refresh();

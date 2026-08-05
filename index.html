@@ -42,11 +42,14 @@
       tailwind.config = {
         theme: {
           extend: {
+            // 実際の値は styles.css の :root で持つ（--*-rgb）。
+            // <alpha-value> を挟むことで text-ink/90 のような不透明度指定も効く。
+            // イベントエリアで html.theme-event が付くと一斉に配色が変わる。
             colors: {
-              cream: "#F4EBD0",
-              red: "#D62828",
-              gold: "#FCBF49",
-              ink: "#333333",
+              cream: "rgb(var(--cream-rgb) / <alpha-value>)",
+              red: "rgb(var(--red-rgb) / <alpha-value>)",
+              gold: "rgb(var(--gold-rgb) / <alpha-value>)",
+              ink: "rgb(var(--ink-rgb) / <alpha-value>)",
             },
             fontFamily: {
               display: ["Jost", "Futura", "sans-serif"],
@@ -56,7 +59,7 @@
         },
       };
     </script>
-    <link rel="stylesheet" href="styles.css?v=20" />
+    <link rel="stylesheet" href="styles.css?v=26" />
     <!-- JS が有効なときだけ reveal/entrance を隠す（無効時も内容が見えるように） -->
     <script>
       document.documentElement.classList.add("js");
@@ -130,6 +133,263 @@
         <span class="scroll-cue__label font-display">Scroll</span>
         <span class="scroll-cue__line"></span>
       </div> -->
+    </section>
+
+    <!-- ===== EVENT：オープニングレセプション（8.8） =====
+         会期初日のレセプション。作家紹介より先に来る。 -->
+    <section
+      id="event"
+      class="border-t border-ink/15 px-6 md:px-14 py-24 md:py-36"
+    >
+      <div class="max-w-4xl mx-auto">
+        <!-- 背面の図形と重なっても沈まないよう、ヒーローと同じ乗算合成にする -->
+        <header class="event-head reveal mix-blend-multiply">
+          <p class="event-head__label">Opening Reception</p>
+          <h2 class="event-head__title">オープニングレセプション</h2>
+          <p class="event-head__date">
+            2026.8.8 <span class="event-head__dow">SAT</span>
+          </p>
+          <p class="event-head__time">14:00 — 24:00</p>
+          <p class="event-head__note">No Cover. Just bring your thirst.</p>
+        </header>
+
+        <!-- ミュージックセレクター（カードはフライヤー掲載順） -->
+        <h3 class="event-group reveal" id="event-music">
+          <span class="event-group__en">Music Selector</span>
+        </h3>
+
+        <ul class="profile-list">
+          <li class="profile-card reveal">
+            <img
+              class="profile-card__img"
+              src="event/88/dj/saigo/img.jpg"
+              alt="西郷進太郎"
+              width="280"
+              height="330"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="profile-card__body">
+              <h4 class="profile-card__name">西郷進太郎</h4>
+              <p class="profile-card__role">Saigo Shintaro</p>
+
+              <p class="profile-card__bio">
+                HIPHOPおよびR&Bのプレイスタイルを得意とし、当時のサンプリングソースへの深い造詣と、
+                卓越したミキシングスキルを武器に活動している。ロジカルなフロア分析力で、クラシックな名曲から隠れた名盤までを緻密に構成する。
+                本職は歯科医師。
+              </p>
+              <p class="profile-card__links">
+                <a
+                  href="https://www.315dental.com/"
+                  target="_blank"
+                  rel="noopener"
+                  >Web</a
+                >
+                <a
+                  href="https://www.instagram.com/shintaro315/"
+                  target="_blank"
+                  rel="noopener"
+                  >Instagram</a
+                >
+              </p>
+            </div>
+          </li>
+
+          <li class="profile-card reveal">
+            <img
+              class="profile-card__img"
+              src="event/88/dj/shiggy/img.jpg"
+              alt="Shiggy（BAY GARAGE）"
+              width="800"
+              height="800"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="profile-card__body">
+              <h4 class="profile-card__name">Shiggy</h4>
+              <p class="profile-card__role">from BAY GARAGE</p>
+              <p class="profile-card__bio">
+                横須賀の“海が似合う”車のライフスタイルショップ「BAY
+                GARAGE」オーナー。<br /><br />“Coast Life &amp; Good Times”
+                をコンセプトに、アメリカ西海岸での生活経験を背景に、海・車・ガレージカルチャーを軸とした世界観を発信。<br /><br />良質なクルマやオリジナルアパレル、雑貨などを手がけている。幼少期から車に親しみ、海辺で過ごす時間や、乗り物とともにある暮らしを楽しんでいる。<br /><br />音楽も、日常に欠かせない存在。
+              </p>
+              <p class="profile-card__links">
+                <a href="https://bay-g.com/" target="_blank" rel="noopener"
+                  >Web</a
+                >
+                <a
+                  href="https://www.instagram.com/bay_garage/"
+                  target="_blank"
+                  rel="noopener"
+                  >Instagram</a
+                >
+              </p>
+            </div>
+          </li>
+
+          <li class="profile-card reveal">
+            <img
+              class="profile-card__img"
+              src="event/88/dj/kei_nakayama/img.jpg"
+              alt="仲山慶"
+              width="800"
+              height="800"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="profile-card__body">
+              <h4 class="profile-card__name">仲山慶</h4>
+              <p class="profile-card__role">Nakayama Kei</p>
+              <p class="profile-card__bio">
+                横須賀出身。<br /><br />家業の酒屋を継承する傍ら、酒と音楽を愛する
+                SAKE DJ。日本酒をテーマにした「SAKE SUNDAY」を主催し、2023
+                年には古民家日本酒バー「ヨネヤ」を開業。<br /><br />「FUJI ROCK
+                FESTIVAL」「GREENROOM FESTIVAL」に出演。DJ ユニット「ULTIMATE
+                4TH」では 4
+                作品をリリースした。豊富な現場経験から生まれる、グルーヴ感あふれるクラブプレイをぜひ体感してほしい。
+              </p>
+              <p class="profile-card__links">
+                <a
+                  href="https://www.instagram.com/discogorila/"
+                  target="_blank"
+                  rel="noopener"
+                  >Instagram</a
+                >
+              </p>
+            </div>
+          </li>
+
+          <li class="profile-card reveal">
+            <img
+              class="profile-card__img"
+              src="event/88/dj/junob/img.jpg"
+              alt="DJ JUNO B"
+              width="800"
+              height="800"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="profile-card__body">
+              <h4 class="profile-card__name">DJ JUNO B</h4>
+              <p class="profile-card__role">ex MIC.B a.k.a 73PIKE SET</p>
+              <p class="profile-card__bio">
+                東京を拠点に国内外で活動する BOOMBOX DJ。<br /><br />ヴィンテージのラジカセとカセットテープのみでプレイする、世界初の「カセット
+                DJ」として知られている。カセットテープとラジカセによって、1980
+                年代ヒップホップカルチャーのストリートの空気感を現代に蘇らせる。また音楽制作においてもアナログ機材にこだわり、minimoog
+                や Poly-Six などのヴィンテージ・アナログシンセのみを使用。<br /><br />完全アナログという哲学のもと、独自の音楽表現を国内外で展開している。
+              </p>
+              <p class="profile-card__tags">
+                Cassette DJ ／ MPC Live ／ Beat Maker
+              </p>
+              <p class="profile-card__links">
+                <a href="https://mic-b.tokyo/" target="_blank" rel="noopener"
+                  >Web</a
+                >
+                <a
+                  href="https://www.instagram.com/mic_b73"
+                  target="_blank"
+                  rel="noopener"
+                  >Instagram</a
+                >
+              </p>
+            </div>
+          </li>
+
+          <li class="profile-card reveal">
+            <img
+              class="profile-card__img"
+              src="event/88/dj/abumi/img.jpg"
+              alt="鐙雅也"
+              width="800"
+              height="800"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="profile-card__body">
+              <h4 class="profile-card__name">鐙雅也</h4>
+              <p class="profile-card__role">Abumi Masaya</p>
+              <p class="profile-card__bio">
+                1997 年、仙台のクラブにてキャリアをスタート。2004
+                年、拠点を東京に移し ageHa や WOMB
+                にて海外アーティストらのサポート DJ
+                を務める。現在も都内のクラブやバーを中心に不定期に活動を行う。本職はグラフィックデザイナー。
+              </p>
+              <p class="profile-card__links">
+                <a href="#artists">出展作家としてのプロフィール</a>
+              </p>
+            </div>
+          </li>
+        </ul>
+
+        <!-- フード -->
+        <h3 class="event-group reveal" id="event-food">
+          <span class="event-group__en">Food</span>
+        </h3>
+
+        <ul class="profile-list">
+          <li class="profile-card profile-card--wide reveal">
+            <img
+              class="profile-card__img"
+              src="event/88/food/steamdog/img.jpg"
+              alt="STEAM DOG"
+              width="800"
+              height="800"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="profile-card__body">
+              <h4 class="profile-card__name">STEAM DOG</h4>
+              <p class="profile-card__role">Chicago Style Hot Dog</p>
+              <p class="profile-card__bio">
+                毎度お馴染みのシカゴスタイルホットドッグ（こだわりのピクルスを大胆に使い、ケチャップを使わずにソーセージ・トマト・マスタードと合わせて食べるスタイル）に加え、ポテトやチリコンカーンなどのお酒のつまみとなるようなメニューをいくつか準備してお待ちしております。
+              </p>
+
+              <dl class="menu">
+                <div class="menu__item">
+                  <dt>シカゴドッグ</dt>
+                  <dd>
+                    ポピーシードバンズにソーセージ、野菜、ピクルスをたっぷり挟んだシカゴスタイルの本格派。
+                  </dd>
+                </div>
+                <div class="menu__item">
+                  <dt>ジューシーソーセージ</dt>
+                  <dd>
+                    国際大会で金賞を獲得した伊勢屋さんのソーセージを丁寧に茹で上げた、パリッとした皮とジューシーな肉汁が溢れるソーセージ。
+                  </dd>
+                </div>
+                <div class="menu__item">
+                  <dt>自家製ピクルス</dt>
+                  <dd>
+                    新鮮野菜をじっくり漬け込んだ、オレンジビネガーの甘味とディルの風味が特徴の自家製ピクルス。
+                  </dd>
+                </div>
+                <div class="menu__item">
+                  <dt>チリコンカン</dt>
+                  <dd>
+                    メキシコ料理が由来とされる、アメリカ南部テキサス州の郷土料理「チリコンカン」。ザクザクのトルティーヤと一緒に。
+                  </dd>
+                </div>
+                <div class="menu__item">
+                  <dt>フレンチフライ</dt>
+                  <dd>
+                    外はカリッと中はホクホク。揚げたてのフライドポテトに、お好みのソースをプラス
+                    100 円で。
+                  </dd>
+                </div>
+              </dl>
+
+              <p class="profile-card__links">
+                <a
+                  href="https://www.instagram.com/steamdog.tokyo/"
+                  target="_blank"
+                  rel="noopener"
+                  >Instagram</a
+                >
+              </p>
+            </div>
+          </li>
+        </ul>
+      </div>
     </section>
 
     <!-- ===== ARTISTS / PROFILE ===== -->
@@ -364,6 +624,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-    <script src="app.js?v=14"></script>
+    <script src="app.js?v=15"></script>
   </body>
 </html>
