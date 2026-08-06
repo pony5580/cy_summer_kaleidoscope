@@ -242,12 +242,15 @@ html.js .hero-artists li {
 }
 
 /* ===== スクロールで出現（reveal：プロフィールカード） ===== */
+/* 出現の速さはここと app.js の ScrollTrigger.batch（start / stagger）の
+   3 箇所で決まる。もたつく場合は「時間を縮める」「移動距離を減らす」
+   「発火位置を下げる」を合わせて調整する。 */
 html.js .reveal {
   opacity: 0;
-  transform: translateY(40px);
+  transform: translateY(24px);
   transition:
-    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 html.js .reveal.is-visible {
   opacity: 1;

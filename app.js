@@ -532,13 +532,20 @@
   // アニメ後は will-change を掃除（恒久レイヤー化を残さない）
   tl.set(heroLines.concat(heroArtists), { clearProps: "will-change" });
 
-  /* ---------- 5. プロフィールカードの reveal（スタガー） ---------- */
+  /* ---------- 5. プロフィールカードの reveal（スタガー） ----------
+     start は「要素の上端がビューポートのどこまで来たら発火するか」。
+     98% ＝ 画面下端に顔を出した時点で走り出すので、スクロールが速くても
+     読める位置に来たときには表示が終わっている。
+     フェードの長さと移動距離は styles.css の html.js .reveal 側。 */
+  var REVEAL_START = "top 98%";
+  var REVEAL_STAGGER = 0.05; // 秒。同時に入った要素をずらす間隔
+
   var cards = gsap.utils.toArray(".reveal");
   ScrollTrigger.batch(cards, {
-    start: "top 85%",
+    start: REVEAL_START,
     onEnter: function (batch) {
       batch.forEach(function (el, k) {
-        gsap.delayedCall(k * 0.08, function () {
+        gsap.delayedCall(k * REVEAL_STAGGER, function () {
           el.classList.add("is-visible");
         });
       });
